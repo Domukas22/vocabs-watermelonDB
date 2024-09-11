@@ -36,7 +36,7 @@ import languages from "@/src/constants/languages";
 import { Link } from "expo-router";
 import { router } from "expo-router";
 import MainScreen_VIEW from "@/src/components/mainScreen_VIEW/mainScreen_VIEW";
-import Styled_FLATLIST from "@/src/components/Styled_FLATLIST/Styled_FLATLIST";
+import Styled_FLATLIST from "@/src/components/Flatlists/Styled_FLATLIST/Styled_FLATLIST";
 
 export default function Home_SCREEN() {
   const [SHOW_displaySettingsModal, SET_displaySettingsModalOpen] =

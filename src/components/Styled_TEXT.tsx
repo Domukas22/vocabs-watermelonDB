@@ -3,7 +3,7 @@ import { useFonts } from "expo-font";
 import { Text, type TextProps, StyleSheet } from "react-native";
 
 export type ThemedTextProps = TextProps & {
-  type:
+  type?:
     | "text_22_bold"
     | "text_18_semibold"
     | "text_18_medium"
