@@ -13,26 +13,28 @@ import {
   TextInput as R_TextInput,
   KeyboardAvoidingView,
   Platform,
+  TextInputProps,
 } from "react-native";
 
-interface TextInputProps {
+type _TextInputProps = TextInputProps & {
   value: string;
   SET_value: React.Dispatch<React.SetStateAction<string>>;
   placeholder: string;
   multiline?: boolean;
-}
+};
 
 export default function StyledTextInput({
   value,
   SET_value,
   placeholder,
   multiline = false,
-}: TextInputProps) {
+  style,
+}: _TextInputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <R_TextInput
-      style={[s.textInput, multiline && { minHeight: 120, height: 120 }]}
+      style={[s.textInput, multiline && { minHeight: 120, height: 120 }, style]}
       placeholder={placeholder ? placeholder : "A nice placeholder..."}
       multiline={multiline}
       placeholderTextColor={MyColors.text_white_06}

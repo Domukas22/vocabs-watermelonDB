@@ -14,6 +14,9 @@ import Styled_FLATLIST from "@/src/components/Styled_FLATLIST/Styled_FLATLIST";
 import { Styled_TEXT } from "@/src/components/Styled_TEXT";
 import StyledTextInput from "@/src/components/StyledTextInput/StyledTextInput";
 import VocabList_BTN from "@/src/components/vocabList_BTN/vocabList_BTN";
+import db, { Lists_DB } from "@/src/db";
+import { List_MODEL } from "@/src/models/models";
+
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -28,11 +31,28 @@ export default function Profile_SCREEN() {
   const [id, SET_id] = useState("");
   const [name, SET_name] = useState("");
 
-  function CREATE_list() {
-    console.log(`Create "${name}"`);
+  async function CREATE_list() {
+    await db.write(async () => {
+      await Lists_DB.create((list) => {
+        list.userId = "user_id_1"; // Set the user ID
+        list.name = name;
+        list.createdAt = Date.now(); // Set the creation timestamp
+        list.updatedAt = Date.now(); // Set the updated timestamp
+      });
+
+      console.log(`Created list "${name}"`);
+    });
   }
-  function GET_lists() {
-    console.log(`Create "${name}"`);
+
+  // list.user_id = "user_id_1";
+  // list.name = "List 1"
+
+  async function GET_lists() {
+    // const listCollection = DB;
+    // const lists_COLLECTION = DB.get('lists')
+
+    const lists = await Lists_DB.query().fetch();
+    console.log(lists.map((x) => x.name));
   }
 
   return (
@@ -59,11 +79,17 @@ export default function Profile_SCREEN() {
       />
       <View style={{ padding: 12 }}>
         <View style={{ flexDirection: "row", marginBottom: 12, gap: 12 }}>
-          <StyledTextInput placeholder="id..." value={id} SET_value={SET_id} />
+          <StyledTextInput
+            placeholder="id..."
+            value={id}
+            SET_value={SET_id}
+            style={{ flex: 1 }}
+          />
           <StyledTextInput
             placeholder="name..."
             value={name}
             SET_value={SET_name}
+            style={{ flex: 1 }}
           />
         </View>
         <View style={{ flexDirection: "row", gap: 8 }}>

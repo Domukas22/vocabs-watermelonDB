@@ -37,14 +37,23 @@ const adapter = new SQLiteAdapter({
 });
 
 // Then, make a Watermelon database from it!
-const database = new Database({
+const db = new Database({
   adapter,
   modelClasses: [
-    Highlights_MODEL,
-    Language_MODEL,
-    List_MODEL,
-    Translation_MODEL,
     User_MODEL,
+    List_MODEL,
     Vocab_MODEL,
+    Language_MODEL,
+    Translation_MODEL,
+    Highlights_MODEL,
   ],
 });
+
+export default db;
+
+export const Users_DB = db.get<User_MODEL>("users"),
+  Lists_DB = db.get<List_MODEL>("lists"),
+  Vocabs_DB = db.get<Vocab_MODEL>("vocabs"),
+  Languages_DB = db.get<Language_MODEL>("langauges"),
+  Translations_DB = db.get<Translation_MODEL>("translations"),
+  Highlights_DB = db.get<Highlights_MODEL>("highlights");
