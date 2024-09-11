@@ -34,7 +34,7 @@ const s = StyleSheet.create({
   },
   text_18_semibold: {
     fontSize: 18,
-    fontFamily: "Nunito-Semibold",
+    fontFamily: "Nunito-SemiBold",
   },
   text_18_medium: {
     fontSize: 18,
@@ -54,7 +54,7 @@ const s = StyleSheet.create({
   },
   text_15_semibold: {
     fontSize: 15,
-    fontFamily: "Nunito-Semibold",
+    fontFamily: "Nunito-SemiBold",
   },
   label: {
     fontSize: 18,

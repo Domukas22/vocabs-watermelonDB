@@ -63,7 +63,7 @@ export default function Profile_SCREEN() {
             SET_value={SET_name}
           />
         </View>
-        <Btn text="Create" type="simple" onPress={CREATE_list} />
+        <Btn text="Createss" type="simple" onPress={CREATE_list} />
       </View>
     </MainScreen_VIEW>
   );

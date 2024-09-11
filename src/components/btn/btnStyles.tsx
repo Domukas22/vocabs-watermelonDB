@@ -42,7 +42,7 @@ const s = StyleSheet.create({
   },
   action_text: {
     color: MyColors.text_black,
-    fontFamily: "Nunito-Semibold",
+    fontFamily: "Nunito-SemiBold",
   },
 
   active: {
