@@ -10,6 +10,15 @@ import schema from "./schema";
 import migrations from "./migrations";
 // import Post from './model/Post' // ⬅️ You'll import your Models here
 
+import {
+  Highlights_MODEL,
+  Language_MODEL,
+  List_MODEL,
+  Translation_MODEL,
+  User_MODEL,
+  Vocab_MODEL,
+} from "../models/models";
+
 // First, create the adapter to the underlying database:
 const adapter = new SQLiteAdapter({
   // this adapter allows watermelonDB to connec tto SQLite
@@ -31,6 +40,11 @@ const adapter = new SQLiteAdapter({
 const database = new Database({
   adapter,
   modelClasses: [
-    // Post, // ⬅️ You'll add Models to Watermelon here
+    Highlights_MODEL,
+    Language_MODEL,
+    List_MODEL,
+    Translation_MODEL,
+    User_MODEL,
+    Vocab_MODEL,
   ],
 });

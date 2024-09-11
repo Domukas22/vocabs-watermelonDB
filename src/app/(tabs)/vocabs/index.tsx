@@ -31,6 +31,9 @@ export default function Profile_SCREEN() {
   function CREATE_list() {
     console.log(`Create "${name}"`);
   }
+  function GET_lists() {
+    console.log(`Create "${name}"`);
+  }
 
   return (
     <MainScreen_VIEW>
@@ -63,7 +66,20 @@ export default function Profile_SCREEN() {
             SET_value={SET_name}
           />
         </View>
-        <Btn text="Creates" type="simple" onPress={CREATE_list} />
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          <Btn
+            text="Create"
+            type="simple"
+            onPress={CREATE_list}
+            style={{ flex: 1 }}
+          />
+          <Btn
+            text="Read"
+            type="simple"
+            onPress={GET_lists}
+            style={{ flex: 1 }}
+          />
+        </View>
       </View>
     </MainScreen_VIEW>
   );

@@ -16,6 +16,8 @@ export default appSchema({
         { name: "is_premium", type: "boolean" },
         { name: "payment_date", type: "string" },
         { name: "payment_amount", type: "number" },
+        { name: "created_at", type: "number" },
+        { name: "updated_at", type: "number" },
       ],
     }),
     tableSchema({
@@ -28,6 +30,8 @@ export default appSchema({
         { name: "image", type: "string" },
         { name: "is_public", type: "boolean" },
         { name: "is_publicly_visible", type: "boolean" },
+        { name: "created_at", type: "number" },
+        { name: "updated_at", type: "number" },
       ],
     }),
     tableSchema({
@@ -36,6 +40,8 @@ export default appSchema({
         { name: "vocab_id", type: "string", isIndexed: true },
         { name: "lang_id", type: "string", isIndexed: true },
         { name: "text", type: "string" },
+        { name: "created_at", type: "number" },
+        { name: "updated_at", type: "number" },
       ],
     }),
     tableSchema({
@@ -44,6 +50,8 @@ export default appSchema({
         { name: "translation_id", type: "string", isIndexed: true },
         { name: "start_index", type: "number" },
         { name: "end_index", type: "number" },
+        { name: "created_at", type: "number" },
+        { name: "updated_at", type: "number" },
       ],
     }),
     tableSchema({
@@ -53,6 +61,8 @@ export default appSchema({
         { name: "name", type: "string" },
         { name: "image", type: "string" },
         { name: "flag", type: "string" },
+        { name: "created_at", type: "number" },
+        { name: "updated_at", type: "number" },
       ],
     }),
     tableSchema({
@@ -60,6 +70,8 @@ export default appSchema({
       columns: [
         { name: "user_id", type: "string", isIndexed: true },
         { name: "name", type: "string" },
+        { name: "created_at", type: "number" },
+        { name: "updated_at", type: "number" },
       ],
     }),
   ],
