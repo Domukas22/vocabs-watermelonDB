@@ -13,43 +13,43 @@ export default appSchema({
         { name: "name", type: "string" },
         { name: "email", type: "string" },
         { name: "password", type: "string" },
-        { name: "hasPremium", type: "boolean" },
-        { name: "paymentDate", type: "string" },
-        { name: "paymentAmount", type: "number" },
+        { name: "is_premium", type: "boolean" },
+        { name: "payment_date", type: "string" },
+        { name: "payment_amount", type: "number" },
       ],
     }),
     tableSchema({
       name: "vocabs",
       columns: [
-        { name: "user_id", type: "string" }, // Foreign key to users
-        { name: "list_id", type: "string" },
+        { name: "user_id", type: "string", isIndexed: true },
+        { name: "list_id", type: "string", isIndexed: true },
         { name: "difficulty", type: "number" },
         { name: "description", type: "string" },
         { name: "image", type: "string" },
-        { name: "public", type: "boolean" },
-        { name: "visibleInPublic", type: "boolean" },
+        { name: "is_public", type: "boolean" },
+        { name: "is_publicly_visible", type: "boolean" },
       ],
     }),
     tableSchema({
       name: "translations",
       columns: [
-        { name: "vocab_id", type: "string" }, // Foreign key to vocabs
-        { name: "lang_id", type: "string" },
-        { name: " ", type: "string" },
+        { name: "vocab_id", type: "string", isIndexed: true },
+        { name: "lang_id", type: "string", isIndexed: true },
+        { name: "text", type: "string" },
       ],
     }),
     tableSchema({
       name: "highlights",
       columns: [
-        { name: "translation_id", type: "string" }, // Foreign key to translations
-        { name: "startIndex", type: "number" },
-        { name: "endIndex", type: "number" },
+        { name: "translation_id", type: "string", isIndexed: true },
+        { name: "start_index", type: "number" },
+        { name: "end_index", type: "number" },
       ],
     }),
     tableSchema({
       name: "languages",
       columns: [
-        { name: "slug", type: "string" },
+        { name: "slug", type: "string", isIndexed: true },
         { name: "name", type: "string" },
         { name: "image", type: "string" },
         { name: "flag", type: "string" },
@@ -58,7 +58,7 @@ export default appSchema({
     tableSchema({
       name: "lists",
       columns: [
-        { name: "user_id", type: "string" },
+        { name: "user_id", type: "string", isIndexed: true },
         { name: "name", type: "string" },
       ],
     }),
