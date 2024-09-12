@@ -18,7 +18,7 @@ import Input_WRAP from "@/src/components/Input_WRAP/Input_WRAP";
 import { Styled_TEXT } from "@/src/components/Styled_TEXT";
 import StyledTextInput from "@/src/components/StyledTextInput/StyledTextInput";
 import { MyColors } from "@/src/constants/MyColors";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -31,8 +31,8 @@ import {
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import SelectList_MODAL from "../SelectList_MODAL/SelectList_MODAL";
 import SelectLanguages_MODAL from "../SelectLanguages_MODAL/SelectLanguages_MODAL";
-import languages from "@/src/constants/languages";
-import { Vocab_MODEL } from "@/src/db/models";
+import languages, { Language_PROPS } from "@/src/constants/languages";
+import { Translation_MODEL, Vocab_MODEL } from "@/src/db/models";
 import { USE_selectedList } from "@/src/context/SelectedList_CONTEXT";
 import CREATE_vocab from "@/src/db/actions/vocabs/CREATE_vocab";
 
@@ -56,24 +56,43 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
     difficulty: IS_edit ? vocab?.difficulty : 3,
     image: IS_edit ? vocab?.image : "",
     description: IS_edit ? vocab?.description : "",
-    // translations: languages.filter(
-    //   (lang) => lang.id === "en" || lang.id === "de"
-    // ),
-    translations: [],
+    translations: IS_edit
+      ? vocab?.translations
+      : (languages
+          .filter((l) => l.id === "en" || l.id === "de")
+          .map((l) => ({
+            vocab_id: vocab?.id,
+            lang_id: l.id,
+            text: "",
+          })) as Translation_MODEL[]),
   });
 
-  const [en, SET_en] = useState("");
-  const [de, SET_de] = useState("");
-
-  const [langIDs, SET_langIDs] = useState(["en", "de"]);
-
   function HANDLE_lang(id: string) {
-    if (!langIDs.includes(id)) {
-      if (langIDs.length >= 10) return;
-      SET_langIDs((prev) => [...prev, id]);
+    const alreadyHasLang = managed_VOCAB.translations.some(
+      (tr) => tr.lang_id === id
+    );
+    const tooManyLangSelected = managed_VOCAB.translations.length >= 10;
+    const hasOnly2Translations = managed_VOCAB.translations.length === 2;
+
+    if (!alreadyHasLang) {
+      if (tooManyLangSelected) return;
+      const updatedTranslations = [
+        ...managed_VOCAB.translations,
+        { vocab_id: "", lang_id: id, text: "" },
+      ];
+      SET_managedVocab((prev) => ({
+        ...prev,
+        translations: updatedTranslations,
+      }));
     } else {
-      if (langIDs.length <= 2) return;
-      SET_langIDs((prev) => prev.filter((x) => x !== id));
+      if (hasOnly2Translations) return;
+      const updatedTranslations = managed_VOCAB.translations.filter(
+        (tr) => tr.lang_id !== id
+      );
+      SET_managedVocab((prev) => ({
+        ...prev,
+        translations: updatedTranslations,
+      }));
     }
   }
 
@@ -94,6 +113,24 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
   }
   function TOGGLE_selectLangModal() {
     SET_selectLangModal((prev) => !prev);
+  }
+  function EDIT_translationText({
+    lang_id,
+    newText,
+  }: {
+    lang_id: string;
+    newText: string;
+  }) {
+    // Update the translations array
+    const updatedTranslations = managed_VOCAB.translations.map((tr) =>
+      tr.lang_id === lang_id ? { ...tr, text: newText } : tr
+    );
+
+    // Update the state
+    SET_managedVocab((prev) => ({
+      ...prev,
+      translations: updatedTranslations,
+    }));
   }
 
   return (
@@ -210,7 +247,11 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
             </Input_WRAP>
             <Input_WRAP label="Select at least 2 languages *">
               {languages
-                .filter((lang) => langIDs.includes(lang.id))
+                .filter((lang: Language_PROPS) =>
+                  managed_VOCAB.translations.some(
+                    (tr) => tr.lang_id === lang.id
+                  )
+                )
                 .map((lang) => (
                   <Btn
                     iconLeft={
@@ -221,10 +262,11 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
                           borderRadius: 2,
                           marginRight: 4,
                         }}
-                        source={lang.flag}
+                        // source={lang.image}
+                        source={require("@/assets/images/flags/en.png")}
                       />
                     }
-                    text={lang.name}
+                    text={lang.lang.en}
                     iconRight={<ICON_X rotate={true} />}
                     onPress={() => HANDLE_lang(lang.id)}
                     type="simple"
@@ -241,28 +283,31 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
                 style={{ flex: 1 }}
               />
             </Input_WRAP>
-            <Input_WRAP
-              labelIcon={<ICON_flag lang="en" />}
-              label="English translation *"
-            >
-              <StyledTextInput
-                multiline={true}
-                value={en}
-                SET_value={SET_en}
-                placeholder="Your vocab in English..."
-              />
-            </Input_WRAP>
-            <Input_WRAP
-              labelIcon={<ICON_flag lang="de" />}
-              label="German translation *"
-            >
-              <StyledTextInput
-                multiline={true}
-                value={de}
-                SET_value={SET_de}
-                placeholder="Your vocab in German..."
-              />
-            </Input_WRAP>
+
+            {managed_VOCAB.translations.map((tr: Translation_MODEL) => {
+              const lang = languages.find((l) => l.id === tr.lang_id);
+
+              return (
+                <Input_WRAP
+                  key={tr.lang_id}
+                  labelIcon={<ICON_flag lang={tr.lang_id} />}
+                  label={`${lang?.lang?.en} translation *`}
+                >
+                  <StyledTextInput
+                    multiline={true}
+                    value={tr.text}
+                    SET_value={(val: string) => {
+                      EDIT_translationText({
+                        lang_id: tr.lang_id,
+                        newText: val,
+                      });
+                    }}
+                    placeholder="Your vocab in English..."
+                  />
+                </Input_WRAP>
+              );
+            })}
+
             <Input_WRAP label="Description (optional)">
               <StyledTextInput
                 multiline={true}
@@ -303,7 +348,7 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
           {...{
             SHOW_selectLangModal,
             TOGGLE_selectLangModal,
-            langIDs,
+            langIDs: managed_VOCAB?.translations?.map((tr) => tr.lang_id),
             HANDLE_lang,
           }}
         />

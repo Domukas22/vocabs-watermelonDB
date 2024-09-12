@@ -55,17 +55,6 @@ export default appSchema({
       ],
     }),
     tableSchema({
-      name: "languages",
-      columns: [
-        { name: "slug", type: "string", isIndexed: true },
-        { name: "name", type: "string" },
-        { name: "image", type: "string" },
-        { name: "flag", type: "string" },
-        { name: "created_at", type: "number" },
-        { name: "updated_at", type: "number" },
-      ],
-    }),
-    tableSchema({
       name: "lists",
       columns: [
         { name: "user_id", type: "string", isIndexed: true },

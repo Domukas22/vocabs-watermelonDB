@@ -1,25 +1,30 @@
 import { Model } from "@nozbe/watermelondb";
-import { field, relation, text } from "@nozbe/watermelondb/decorators";
+import {
+  field,
+  immutableRelation,
+  relation,
+  text,
+} from "@nozbe/watermelondb/decorators";
 import { Associations } from "@nozbe/watermelondb/Model";
 
 // User Model
 export class User_MODEL extends Model {
   static table = "users";
 
-  @text("name") name: string;
-  @text("email") email: string;
-  @text("password") password: string;
-  @field("is_premium") is_premium: boolean;
-  @field("payment_date") payment_date: string;
-  @field("payment_amount") payment_amount: number;
-  @field("created_at") created_at: number;
-  @field("updated_at") updated_at: number;
+  @text("name") name!: string;
+  @text("email") email!: string;
+  @text("password") password!: string;
+  @field("is_premium") is_premium!: boolean;
+  @field("payment_date") payment_date!: string;
+  @field("payment_amount") payment_amount!: number;
+  @field("created_at") created_at!: number;
+  @field("updated_at") updated_at!: number;
 
-  static associations = {
+  static associations: Associations = {
     lists: { type: "has_many", foreignKey: "user_id" },
   };
 
-  @relation("lists", "user_id") lists; // Relation to the lists table
+  @relation("lists", "user_id") lists!: List_MODEL; // Relation to the lists table
 }
 // ---------------------------------------------------------------
 
@@ -37,13 +42,13 @@ export class Vocab_MODEL extends Model {
   @field("created_at") created_at!: number;
   @field("updated_at") updated_at!: number;
 
-  static associations = {
+  static associations: Associations = {
     list: { type: "belongs_to", key: "list_id" },
     translations: { type: "has_many", foreignKey: "vocab_id" },
   };
 
-  @relation("list", "list_id") list!: List_MODEL;
-  @relation("translations", "vocab_id") translations!: Translation_MODEL; // Relation to the translations table
+  @relation("lists", "list_id") list!: List_MODEL;
+  @relation("translations", "vocab_id") translations!: Translation_MODEL;
 }
 // ---------------------------------------------------------------
 
@@ -61,21 +66,8 @@ export class List_MODEL extends Model {
     vocabs: { type: "has_many", foreignKey: "list_id" },
   };
 
-  @relation("user", "user_id") user!: User_MODEL;
-  @relation("vocabs", "list_id") vocabs!: Vocab_MODEL; // Relation to the vocabs table
-}
-// ---------------------------------------------------------------
-
-// Language Model
-export class Language_MODEL extends Model {
-  static table = "languages";
-
-  @field("slug") slug: string;
-  @text("name") name: string;
-  @field("image") image: string;
-  @field("flag") flag: string;
-  @field("created_at") created_at: number;
-  @field("updated_at") updated_at: number;
+  @immutableRelation("users", "user_id") user!: User_MODEL;
+  @relation("vocabs", "list_id") vocabs!: Vocab_MODEL;
 }
 // ---------------------------------------------------------------
 
@@ -83,19 +75,21 @@ export class Language_MODEL extends Model {
 export class Translation_MODEL extends Model {
   static table = "translations";
 
-  @field("vocab_id") vocabId: string;
-  @field("lang_id") langId: string;
-  @text("text") text: string;
-  @field("created_at") created_at: number;
-  @field("updated_at") updated_at: number;
+  @field("vocab_id") vocab_id!: string;
+  @field("lang_id") lang_id!: string;
+  @text("text") text!: string;
 
-  static associations = {
+  @field("created_at") created_at!: number;
+  @field("updated_at") updated_at!: number;
+
+  static associations: Associations = {
     vocab: { type: "belongs_to", key: "vocab_id" },
+    language: { type: "belongs_to", key: "lang_id" },
     highlights: { type: "has_many", foreignKey: "translation_id" },
   };
 
-  @relation("vocab", "vocab_id") vocab;
-  @relation("highlights", "translation_id") highlights; // Relation to the highlights table
+  @immutableRelation("vocabs", "vocab_id") vocab!: Vocab_MODEL;
+  @relation("highlights", "translation_id") highlights!: Highlights_MODEL;
 }
 // ---------------------------------------------------------------
 
@@ -103,15 +97,16 @@ export class Translation_MODEL extends Model {
 export class Highlights_MODEL extends Model {
   static table = "highlights";
 
-  @field("translation_id") translation_id: string;
-  @field("start_index") start_index: number;
-  @field("end_index") end_index: number;
-  @field("created_at") created_at: number;
-  @field("updated_at") updated_at: number;
+  @field("translation_id") translation_id!: string;
+  @field("start_index") start_index!: number;
+  @field("end_index") end_index!: number;
+  @field("created_at") created_at!: number;
+  @field("updated_at") updated_at!: number;
 
-  static associations = {
+  static associations: Associations = {
     translation: { type: "belongs_to", key: "translation_id" },
   };
 
-  @relation("translation", "translation_id") translation;
+  @immutableRelation("translation", "translation_id")
+  translation!: Translation_MODEL;
 }
