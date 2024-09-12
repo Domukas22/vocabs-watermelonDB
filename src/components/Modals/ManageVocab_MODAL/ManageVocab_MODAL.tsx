@@ -263,7 +263,7 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
                           marginRight: 4,
                         }}
                         // source={lang.image}
-                        source={require("@/assets/images/flags/en.png")}
+                        source={lang.image}
                       />
                     }
                     text={lang.lang.en}

@@ -91,11 +91,11 @@ export default function SelectLanguages_MODAL(
                               borderRadius: 2,
                               marginRight: 4,
                             }}
-                            source={lang.flag}
+                            source={lang.image}
                           />
                         }
                         iconRight={<ICON_X color="primary" rotate={true} />}
-                        text={lang.name}
+                        text={lang.lang.en}
                         onPress={() => HANDLE_lang(lang.id)}
                         type="active"
                         style={{ flex: 1 }}
@@ -118,11 +118,11 @@ export default function SelectLanguages_MODAL(
                               borderRadius: 2,
                               marginRight: 4,
                             }}
-                            source={lang.flag}
+                            source={lang.image}
                           />
                         }
                         iconRight={<ICON_X />}
-                        text={lang.name}
+                        text={lang.lang.en}
                         onPress={() => HANDLE_lang(lang.id)}
                         type="simple"
                         style={{ flex: 1 }}
@@ -137,7 +137,7 @@ export default function SelectLanguages_MODAL(
             <Input_WRAP label="Other languages">
               {languages
                 .filter((lang) =>
-                  lang.name.toLowerCase().includes(search.toLowerCase())
+                  lang.lang.en.toLowerCase().includes(search.toLowerCase())
                 )
                 .map((lang) => {
                   return (
@@ -150,7 +150,7 @@ export default function SelectLanguages_MODAL(
                             borderRadius: 2,
                             marginRight: 4,
                           }}
-                          source={lang.flag}
+                          source={lang.image}
                         />
                       }
                       iconRight={
@@ -159,7 +159,7 @@ export default function SelectLanguages_MODAL(
                           rotate={langIDs.includes(lang.id)}
                         />
                       }
-                      text={lang.name}
+                      text={lang?.lang.en}
                       onPress={() => HANDLE_lang(lang.id)}
                       type={langIDs.includes(lang.id) ? "active" : "simple"}
                       style={{ flex: 1 }}
