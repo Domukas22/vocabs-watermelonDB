@@ -17,7 +17,7 @@ import {
   Translation_MODEL,
   User_MODEL,
   Vocab_MODEL,
-} from "../models/models";
+} from "./models";
 
 // First, create the adapter to the underlying database:
 const adapter = new SQLiteAdapter({

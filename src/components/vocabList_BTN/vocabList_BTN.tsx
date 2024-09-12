@@ -6,7 +6,7 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { Styled_TEXT } from "../Styled_TEXT";
 
-import { List_MODEL } from "@/src/models/models";
+import { List_MODEL } from "@/src/db/models";
 import { MyColors } from "@/src/constants/MyColors";
 import { ICON_difficultyDot } from "../icons/icons";
 
@@ -28,7 +28,7 @@ export default function VocabList_BTN({
         {name}
       </Styled_TEXT>
       <Styled_TEXT type="label_small" style={{ textAlign: "left" }}>
-        Vocab count
+        0 vocabs
       </Styled_TEXT>
       <View
         style={{ flexDirection: "row", gap: 8, justifyContent: "flex-end" }}

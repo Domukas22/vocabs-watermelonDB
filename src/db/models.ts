@@ -27,22 +27,23 @@ export class User_MODEL extends Model {
 export class Vocab_MODEL extends Model {
   static table = "vocabs";
 
-  @field("list_id") listId: string;
-  @field("difficulty") difficulty: number;
-  @text("description") description: string;
-  @field("image") image: string;
-  @field("is_public") isPublic: boolean;
-  @field("is_publicly_visible") isPubliclyVisible: boolean;
-  @field("created_at") created_at: number;
-  @field("updated_at") updated_at: number;
+  @field("list_id") list_id!: string;
+  @field("difficulty") difficulty!: 1 | 2 | 3;
+  @text("description") description!: string;
+  @field("image") image!: string;
+
+  @field("is_public") is_public!: boolean;
+  @field("is_publicly_visible") is_publicly_visible!: boolean;
+  @field("created_at") created_at!: number;
+  @field("updated_at") updated_at!: number;
 
   static associations = {
     list: { type: "belongs_to", key: "list_id" },
     translations: { type: "has_many", foreignKey: "vocab_id" },
   };
 
-  @relation("list", "list_id") list;
-  @relation("translations", "vocab_id") translations; // Relation to the translations table
+  @relation("list", "list_id") list!: List_MODEL;
+  @relation("translations", "vocab_id") translations!: Translation_MODEL; // Relation to the translations table
 }
 // ---------------------------------------------------------------
 

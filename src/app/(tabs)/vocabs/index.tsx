@@ -15,7 +15,7 @@ import { Styled_TEXT } from "@/src/components/Styled_TEXT";
 import StyledTextInput from "@/src/components/StyledTextInput/StyledTextInput";
 import VocabList_BTN from "@/src/components/vocabList_BTN/vocabList_BTN";
 import db, { Lists_DB } from "@/src/db";
-import { List_MODEL } from "@/src/models/models";
+import { List_MODEL } from "@/src/db/models";
 
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -23,8 +23,11 @@ import { StyleSheet, View } from "react-native";
 import MyLists_FLATLIST from "@/src/components/Flatlists/MyLists_FLATLIST/MyLists_FLATLIST";
 import ObservedLists_FLATLIST from "@/src/components/Flatlists/MyLists_FLATLIST/MyLists_FLATLIST";
 import Simple_MODAL from "@/src/components/Modals/Simple_MODAL/Simple_MODAL";
+import { USE_selectedList } from "@/src/context/SelectedList_CONTEXT";
+import CREATE_list from "@/src/db/actions/lists/CREATE_list";
 
 export default function Profile_SCREEN() {
+  const { SET_SelectedListId, SET_SelectedListName } = USE_selectedList();
   const [newList_NAME, SET_newListName] = useState("");
 
   const [SHOW_createListModal, SET_createListModal] = useState(false);
@@ -33,21 +36,16 @@ export default function Profile_SCREEN() {
     SET_createListModal((prev) => !prev);
   };
 
-  async function CREATE_list() {
-    await db.write(async () => {
-      await Lists_DB.create((list: List_MODEL) => {
-        list.user_id = "user_id_1"; // Set the user ID
-        list.name = newList_NAME;
-        list.created_at = Date.now(); // Set the creation timestamp
-        list.updated_at = Date.now(); // Set the updated timestamp
-      });
-    });
-  }
-
   async function DELETE_allLists() {
     await db.write(async () => {
       const lists = await Lists_DB.query().fetch();
-      await Promise.all(lists.map((item) => item.markAsDeleted()));
+
+      await Promise.all(
+        lists.map((item) => {
+          // item.markAsDeleted()
+          item.destroyPermanently();
+        })
+      );
     });
   }
 
@@ -81,9 +79,14 @@ export default function Profile_SCREEN() {
             onPress={TOGGLE_createListModal}
           />
         }
+        onPress={({ id, name }: { id: string; name: string }) => {
+          SET_SelectedListId(id);
+          SET_SelectedListName(name);
+          router.push("/(tabs)/vocabs/list_PAGE");
+        }}
       />
 
-      {/* <Btn text="Delelte all" type="simple" onPress={DELETE_allLists} /> */}
+      <Btn text="Delelte all" type="simple" onPress={DELETE_allLists} />
 
       <Simple_MODAL
         title="Create a new list"
@@ -104,9 +107,9 @@ export default function Profile_SCREEN() {
             type="action"
             style={{ flex: 1 }}
             onPress={() => {
-              CREATE_list();
-              TOGGLE_createListModal();
               SET_newListName("");
+              CREATE_list({ name: newList_NAME });
+              TOGGLE_createListModal();
             }}
           />
         }

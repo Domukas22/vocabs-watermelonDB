@@ -8,22 +8,10 @@ import { ICON_difficultyDot, ICON_flag } from "../icons/icons";
 import { useState } from "react";
 import Btn from "../btn/btn";
 import { Styled_TEXT } from "../Styled_TEXT";
+import { Vocab_MODEL } from "@/src/db/models";
 
 interface VocabProps {
-  listName: string;
-  listID: string;
-  id: string;
-  difficulty: 1 | 2 | 3;
-  image: string;
-  description: string;
-  translations: {
-    lang: "en" | "de" | "lt";
-    text: string;
-    highlights: {
-      startIndex: number;
-      endIndex: number;
-    }[];
-  }[];
+  vocab: Vocab_MODEL;
   displayProps: {
     SHOW_image: boolean;
     SHOW_listName: boolean;
@@ -33,10 +21,10 @@ interface VocabProps {
   };
 }
 
-export default function Vocab(content: VocabProps) {
+export default function Vocab({ vocab, displayProps }: VocabProps) {
   const [open, SET_open] = useState(false);
   const { SHOW_image, SHOW_listName, SHOW_desc, SHOW_flags, SHOW_difficulty } =
-    content.displayProps;
+    displayProps;
 
   function HANDLE_editVocab() {}
   function TOGGLE_vocab() {
@@ -49,9 +37,9 @@ export default function Vocab(content: VocabProps) {
       style={[
         s.vocab,
         open && s.vocab_open,
-        open && content.difficulty === 1 && s.vocab_open_difficulty_1,
-        open && content.difficulty === 2 && s.vocab_open_difficulty_2,
-        open && content.difficulty === 3 && s.vocab_open_difficulty_3,
+        open && vocab.difficulty === 1 && s.vocab_open_difficulty_1,
+        open && vocab.difficulty === 2 && s.vocab_open_difficulty_2,
+        open && vocab.difficulty === 3 && s.vocab_open_difficulty_3,
       ]}
     >
       <View>
@@ -65,32 +53,31 @@ export default function Vocab(content: VocabProps) {
                   ? { backgroundColor: MyColors.btn_3 }
                   : { backgroundColor: MyColors.btn_2 }, // Pressed and non-pressed styles
               ]}
-              onPress={TOGGLE_vocab}
+              // onPress={TOGGLE_vocab}
+              onPress={() => {}}
             >
-              <Styled_TEXT type="vocabTitle">
-                {content.translations.find((x) => x.lang === "en")?.text ||
-                  "title"}
-              </Styled_TEXT>
+              <Styled_TEXT type="vocabTitle">The title</Styled_TEXT>
 
               {SHOW_listName && (
-                <Styled_TEXT type="label_small">{content.listName}</Styled_TEXT>
+                <Styled_TEXT type="label_small">Name of the list</Styled_TEXT>
               )}
               {SHOW_desc && (
                 <Styled_TEXT type="label_small">
-                  {content.description}
+                  {vocab.description}
                 </Styled_TEXT>
               )}
               {(SHOW_flags || SHOW_difficulty) && (
                 <View style={s.topIconWrap}>
-                  {SHOW_flags &&
+                  {/* {SHOW_flags &&
                     content.translations.map((tr) => (
                       <ICON_flag
                         key={content.id + "/" + tr.lang}
                         lang={tr.lang}
                       />
-                    ))}
+                    ))} */}
+                  <Styled_TEXT type="label_small">Flags</Styled_TEXT>
                   {SHOW_difficulty && (
-                    <ICON_difficultyDot difficulty={content.difficulty} />
+                    <ICON_difficultyDot difficulty={vocab.difficulty} />
                   )}
                 </View>
               )}
@@ -98,7 +85,7 @@ export default function Vocab(content: VocabProps) {
           </View>
         )}
       </View>
-      {open && (
+      {/* {open && (
         <View>
           {content.translations.map((tr) => (
             <View key={tr.text + content.id} style={s.bottomTr}>
@@ -140,7 +127,7 @@ export default function Vocab(content: VocabProps) {
             />
           </View>
         </View>
-      )}
+      )} */}
     </View>
   );
 }

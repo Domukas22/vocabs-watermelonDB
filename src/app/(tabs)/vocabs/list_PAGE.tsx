@@ -37,8 +37,12 @@ import { Link } from "expo-router";
 import { router } from "expo-router";
 import MainScreen_VIEW from "@/src/components/mainScreen_VIEW/mainScreen_VIEW";
 import Styled_FLATLIST from "@/src/components/Flatlists/Styled_FLATLIST/Styled_FLATLIST";
+import { USE_selectedList } from "@/src/context/SelectedList_CONTEXT";
+import ObservedVocabsOfList_FLATLIST from "@/src/components/Flatlists/VocabsOfList_FLATLIST/VocabsOfList_FLATLIST";
+import db, { Vocabs_DB } from "@/src/db";
 
 export default function Home_SCREEN() {
+  const { selectedList_ID, selectedList_NAME } = USE_selectedList();
   const [SHOW_displaySettingsModal, SET_displaySettingsModalOpen] =
     useState(false);
   const [SHOW_manageVocabModal, SET_manageVocabModal] = useState(false);
@@ -60,10 +64,23 @@ export default function Home_SCREEN() {
     SET_manageVocabModal((prev) => !prev);
   }
 
+  async function DELETE_allVocabs() {
+    await db.write(async () => {
+      const lists = await Vocabs_DB.query().fetch();
+
+      await Promise.all(
+        lists.map((item) => {
+          // item.markAsDeleted()
+          item.destroyPermanently();
+        })
+      );
+    });
+  }
+
   return (
     <MainScreen_VIEW>
       <Header
-        title="Vocab list 1"
+        title={selectedList_NAME || "none"}
         btnLeft={
           <Btn
             type="seethrough"
@@ -98,7 +115,7 @@ export default function Home_SCREEN() {
         />
       </Subnav>
 
-      <Styled_FLATLIST
+      {/* <Styled_FLATLIST
         data={vocabDummies.vocabs}
         renderItem={({ item }) => (
           <Vocab
@@ -117,6 +134,17 @@ export default function Home_SCREEN() {
         )}
         keyExtractor={(item) => item.id}
         style={s.vocabWrap}
+      /> */}
+
+      <ObservedVocabsOfList_FLATLIST
+        selectedList_ID={selectedList_ID}
+        displayProps={{
+          SHOW_desc,
+          SHOW_image,
+          SHOW_flags,
+          SHOW_listName,
+          SHOW_difficulty,
+        }}
       />
 
       <DisplaySettings_MODAL
@@ -144,6 +172,7 @@ export default function Home_SCREEN() {
           TOGGLE_manageVocab,
         }}
       />
+      <Btn text="Delelte all" type="simple" onPress={DELETE_allVocabs} />
     </MainScreen_VIEW>
   );
 }

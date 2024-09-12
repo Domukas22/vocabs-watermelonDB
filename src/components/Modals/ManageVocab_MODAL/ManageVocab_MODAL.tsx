@@ -32,35 +32,38 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import SelectList_MODAL from "../SelectList_MODAL/SelectList_MODAL";
 import SelectLanguages_MODAL from "../SelectLanguages_MODAL/SelectLanguages_MODAL";
 import languages from "@/src/constants/languages";
+import { Vocab_MODEL } from "@/src/db/models";
+import { USE_selectedList } from "@/src/context/SelectedList_CONTEXT";
+import CREATE_vocab from "@/src/db/actions/vocabs/CREATE_vocab";
 
 interface DisplaySettingsModal_PROPS {
   IS_edit: boolean;
   SHOW_manageVocabModal: boolean;
   TOGGLE_manageVocab: () => void;
-  vocab?: {
-    difficulty: 1 | 2 | 3;
-  };
+  vocab?: Vocab_MODEL;
 }
 
 export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
-  const { IS_edit, SHOW_manageVocabModal, TOGGLE_manageVocab, vocab } = props;
+  const {
+    IS_edit = false,
+    SHOW_manageVocabModal,
+    TOGGLE_manageVocab,
+    vocab,
+  } = props;
 
-  const [_vocab, SET_vocab] = useState({
+  const [managed_VOCAB, SET_managedVocab] = useState({
+    list_id: IS_edit ? undefined : USE_selectedList().selectedList_ID,
     difficulty: IS_edit ? vocab?.difficulty : 3,
-    image: "",
-    description: "",
-    translations: languages.filter(
-      (lang) => lang.id === "en" || lang.id === "de"
-    ),
+    image: IS_edit ? vocab?.image : "",
+    description: IS_edit ? vocab?.description : "",
+    // translations: languages.filter(
+    //   (lang) => lang.id === "en" || lang.id === "de"
+    // ),
+    translations: [],
   });
-
-  const [_difficulty, SET_difficulty] = useState(
-    IS_edit ? vocab?.difficulty : 3
-  );
 
   const [en, SET_en] = useState("");
   const [de, SET_de] = useState("");
-  const [description, SET_description] = useState("");
 
   const [langIDs, SET_langIDs] = useState(["en", "de"]);
 
@@ -106,6 +109,7 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
           flex: 1,
         }}
       >
+        <Styled_TEXT>{managed_VOCAB.list_id}</Styled_TEXT>
         <Header
           title="Create a new vocab"
           big={true}
@@ -129,27 +133,39 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
               <Btn
                 text="Easy"
                 onPress={() => {
-                  SET_difficulty(1);
+                  SET_managedVocab((prev) => ({ ...prev, difficulty: 1 }));
                 }}
-                type={_difficulty === 1 ? "difficulty_1_active" : "simple"}
+                type={
+                  managed_VOCAB.difficulty === 1
+                    ? "difficulty_1_active"
+                    : "simple"
+                }
                 style={{ flex: 1 }}
                 text_STYLES={{ textAlign: "center" }}
               />
               <Btn
                 text="Medium"
                 onPress={() => {
-                  SET_difficulty(2);
+                  SET_managedVocab((prev) => ({ ...prev, difficulty: 2 }));
                 }}
-                type={_difficulty === 2 ? "difficulty_2_active" : "simple"}
+                type={
+                  managed_VOCAB.difficulty === 2
+                    ? "difficulty_2_active"
+                    : "simple"
+                }
                 style={{ flex: 1 }}
                 text_STYLES={{ textAlign: "center" }}
               />
               <Btn
                 text="Hard"
                 onPress={() => {
-                  SET_difficulty(3);
+                  SET_managedVocab((prev) => ({ ...prev, difficulty: 3 }));
                 }}
-                type={_difficulty === 3 ? "difficulty_3_active" : "simple"}
+                type={
+                  managed_VOCAB.difficulty === 3
+                    ? "difficulty_3_active"
+                    : "simple"
+                }
                 style={{ flex: 1 }}
                 text_STYLES={{ textAlign: "center" }}
               />
@@ -250,8 +266,10 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
             <Input_WRAP label="Description (optional)">
               <StyledTextInput
                 multiline={true}
-                value={description}
-                SET_value={SET_description}
+                value={managed_VOCAB?.description || ""}
+                SET_value={(value: string) =>
+                  SET_managedVocab((prev) => ({ ...prev, description: value }))
+                }
                 placeholder="Note down the place / movie / book so that you remember better..."
               />
             </Input_WRAP>
@@ -261,7 +279,10 @@ export default function ManageVocab_MODAL(props: DisplaySettingsModal_PROPS) {
               btnRight={
                 <Btn
                   text="Create vocab"
-                  onPress={() => {}}
+                  onPress={() => {
+                    CREATE_vocab(managed_VOCAB);
+                    TOGGLE_manageVocab();
+                  }}
                   type="action"
                   style={{ flex: 1 }}
                 />
