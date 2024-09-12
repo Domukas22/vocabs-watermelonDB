@@ -30,7 +30,6 @@ const s = StyleSheet.create({
 
   simple_press: {
     backgroundColor: MyColors.btn_3,
-    borderColor: MyColors.border_white_005,
   },
 
   action: {

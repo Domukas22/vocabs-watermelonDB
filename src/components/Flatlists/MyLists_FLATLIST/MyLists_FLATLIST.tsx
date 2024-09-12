@@ -6,40 +6,60 @@ import { List_MODEL } from "@/src/models/models";
 import VocabList_BTN from "../../vocabList_BTN/vocabList_BTN";
 import Styled_FLATLIST from "../Styled_FLATLIST/Styled_FLATLIST";
 import { useEffect, useState } from "react";
-import { Lists_DB } from "@/src/db";
+import db, { Lists_DB } from "@/src/db";
 import { Styled_TEXT } from "../../Styled_TEXT";
 
-const DUMMY = [
-  { user_id: "user_id_1", name: "List 1" },
-  { user_id: "user_id_1", name: "List 2" },
-  { user_id: "user_id_1", name: "List 3" },
-];
+import { withObservables } from "@nozbe/watermelondb/react";
+import Btn from "../../btn/btn";
+import { ICON_X } from "../../icons/icons";
 
-export default function MyLists_FLATLIST() {
-  const [lists, SET_lists] = useState([]);
+function MyLists_FLATLIST({
+  lists,
+  footerBtn = (
+    <Btn
+      text="Create a new..."
+      iconLeft={<ICON_X color="primary" />}
+      type="seethrough_primary"
+    />
+  ),
+}: {
+  lists: List_MODEL[];
+  footerBtn;
+}) {
+  // const DELETE_list = async (id: string) => {
+  //   await db.write(async () => {
+  //     const list = await Lists_DB.find(id);
+  //     await list.markAsDeleted();
+  //   });
 
-  async function GET_lists() {
-    const lists = await Lists_DB.query().fetch();
-    console.log(lists.map((x) => x.name));
-  }
+  //   console.log(id);
+  // };
 
-  useEffect(() => {
-    const FETCH_lists = async () => {
-      const lists = await Lists_DB.query().fetch();
-      SET_lists(lists);
-    };
-    FETCH_lists();
-  }, []);
+  const allVocabsList = {
+    id: "all",
+    name: "All vocabs",
+    user_id: "user_1",
+    created_at: Date.now(),
+    updated_at: Date.now(),
+  };
 
-  return lists.length ? (
+  return (
     <Styled_FLATLIST
-      data={lists}
-      renderItem={({ item }, index: string) => (
-        <VocabList_BTN id={index} name={item.name} />
+      data={[{ ...allVocabsList }, ...lists]}
+      renderItem={({ item }: { item: List_MODEL; index: number }) => (
+        <VocabList_BTN list={item} onPress={() => {}} /> // Pass item, not item._raw
       )}
       keyExtractor={(item) => item.name}
+      ListFooterComponent={footerBtn}
     />
-  ) : (
-    <Styled_TEXT>Loading...</Styled_TEXT>
   );
 }
+
+const enhance = withObservables([], () => ({
+  lists: Lists_DB.query(), // quiry.observe() is set by defualt, you dont need ot mention it
+  // the query.fetch() fetches one time, and the query.observe() observese
+  // .. but it needs ot be wrapped but the "withObservables"
+}));
+
+const ObservedLists_FLATLIST = enhance(MyLists_FLATLIST);
+export default ObservedLists_FLATLIST;

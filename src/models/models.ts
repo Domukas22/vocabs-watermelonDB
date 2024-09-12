@@ -9,11 +9,11 @@ export class User_MODEL extends Model {
   @text("name") name: string;
   @text("email") email: string;
   @text("password") password: string;
-  @field("is_premium") isPremium: boolean;
-  @field("payment_date") paymentDate: string;
-  @field("payment_amount") paymentAmount: number;
-  @field("created_at") createdAt: number;
-  @field("updated_at") updatedAt: number;
+  @field("is_premium") is_premium: boolean;
+  @field("payment_date") payment_date: string;
+  @field("payment_amount") payment_amount: number;
+  @field("created_at") created_at: number;
+  @field("updated_at") updated_at: number;
 
   static associations = {
     lists: { type: "has_many", foreignKey: "user_id" },
@@ -33,8 +33,8 @@ export class Vocab_MODEL extends Model {
   @field("image") image: string;
   @field("is_public") isPublic: boolean;
   @field("is_publicly_visible") isPubliclyVisible: boolean;
-  @field("created_at") createdAt: number;
-  @field("updated_at") updatedAt: number;
+  @field("created_at") created_at: number;
+  @field("updated_at") updated_at: number;
 
   static associations = {
     list: { type: "belongs_to", key: "list_id" },
@@ -50,10 +50,10 @@ export class Vocab_MODEL extends Model {
 export class List_MODEL extends Model {
   static table = "lists";
 
-  @field("user_id") userId!: string;
+  @field("user_id") user_id!: string;
   @text("name") name!: string;
-  @field("created_at") createdAt!: number;
-  @field("updated_at") updatedAt!: number;
+  @field("created_at") created_at!: number;
+  @field("updated_at") updated_at!: number;
 
   static associations: Associations = {
     user: { type: "belongs_to", key: "user_id" },
@@ -73,8 +73,8 @@ export class Language_MODEL extends Model {
   @text("name") name: string;
   @field("image") image: string;
   @field("flag") flag: string;
-  @field("created_at") createdAt: number;
-  @field("updated_at") updatedAt: number;
+  @field("created_at") created_at: number;
+  @field("updated_at") updated_at: number;
 }
 // ---------------------------------------------------------------
 
@@ -85,8 +85,8 @@ export class Translation_MODEL extends Model {
   @field("vocab_id") vocabId: string;
   @field("lang_id") langId: string;
   @text("text") text: string;
-  @field("created_at") createdAt: number;
-  @field("updated_at") updatedAt: number;
+  @field("created_at") created_at: number;
+  @field("updated_at") updated_at: number;
 
   static associations = {
     vocab: { type: "belongs_to", key: "vocab_id" },
@@ -102,11 +102,11 @@ export class Translation_MODEL extends Model {
 export class Highlights_MODEL extends Model {
   static table = "highlights";
 
-  @field("translation_id") translationId: string;
-  @field("start_index") startIndex: number;
-  @field("end_index") endIndex: number;
-  @field("created_at") createdAt: number;
-  @field("updated_at") updatedAt: number;
+  @field("translation_id") translation_id: string;
+  @field("start_index") start_index: number;
+  @field("end_index") end_index: number;
+  @field("created_at") created_at: number;
+  @field("updated_at") updated_at: number;
 
   static associations = {
     translation: { type: "belongs_to", key: "translation_id" },

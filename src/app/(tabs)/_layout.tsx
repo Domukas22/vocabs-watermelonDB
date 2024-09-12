@@ -15,7 +15,6 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: MyColors.text_primary,
         headerStyle: {
           backgroundColor: MyColors.fill_bg,
         },
@@ -31,6 +30,7 @@ export default function TabLayout() {
 
           borderTopColor: MyColors.border_white_005,
         },
+        tabBarActiveTintColor: MyColors.text_primary,
         tabBarLabelStyle: {
           fontSize: 15, // Adjust font size
           fontFamily: "Nunito-Bold",

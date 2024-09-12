@@ -14,22 +14,20 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 
 interface SimpleModal_PROPS {
   children: React.ReactNode;
-  title: string;
-  label: string;
-  SHOW_simpleModal: boolean;
-  TOGGLE_simpleModal: () => void;
-  btnLeft: React.ReactNode;
-  btnRight: React.ReactNode;
+  title?: string;
+  IS_open: boolean;
+  toggle: () => void;
+  btnLeft?: React.ReactNode;
+  btnRight?: React.ReactNode;
 }
 
 export default function Simple_MODAL(props: SimpleModal_PROPS) {
   const {
     children,
-    title,
-    label,
-    SHOW_simpleModal,
-    TOGGLE_simpleModal,
-    btnLeft,
+    title = "Simple modal",
+    IS_open: SHOW_simpleModal,
+    toggle: TOGGLE_simpleModal,
+    btnLeft = <Btn text="Done" style={{ flex: 1 }} />,
     btnRight,
   } = props;
 
@@ -80,10 +78,7 @@ export default function Simple_MODAL(props: SimpleModal_PROPS) {
                   style={{ borderRadius: 100 }}
                 />
               </View>
-              <View style={s.content}>
-                <Styled_TEXT type="label">{label}</Styled_TEXT>
-                {children}
-              </View>
+              <View style={s.content}>{children}</View>
               <View style={s.footer}>
                 {!btnLeft && !btnRight && (
                   <Styled_TEXT type="label_small">

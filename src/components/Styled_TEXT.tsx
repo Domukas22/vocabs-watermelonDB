@@ -5,6 +5,7 @@ import { Text, type TextProps, StyleSheet } from "react-native";
 export type ThemedTextProps = TextProps & {
   type?:
     | "text_22_bold"
+    | "text_18_bold"
     | "text_18_semibold"
     | "text_18_medium"
     | "text_18_regular"
@@ -30,6 +31,10 @@ const s = StyleSheet.create({
   },
   text_22_bold: {
     fontSize: 22,
+    fontFamily: "Nunito-Bold",
+  },
+  text_18_bold: {
+    fontSize: 18,
     fontFamily: "Nunito-Bold",
   },
   text_18_semibold: {

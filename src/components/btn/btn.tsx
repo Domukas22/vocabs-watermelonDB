@@ -10,7 +10,7 @@ import btnStyles from "./btnStyles";
 import { Href, Link } from "expo-router";
 
 type Btn = PressableProps & {
-  type:
+  type?:
     | "simple"
     | "action"
     | "active"
@@ -21,7 +21,7 @@ type Btn = PressableProps & {
     | "difficulty_2_active"
     | "difficulty_1_active";
   text?: string;
-  onPress: () => void;
+  onPress?: () => void;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
   text_STYLES?: TextStyle;
@@ -31,7 +31,7 @@ export default function Btn({
   text,
   iconLeft,
   iconRight,
-  onPress,
+  onPress = () => {},
   type = "simple",
   style,
   text_STYLES,

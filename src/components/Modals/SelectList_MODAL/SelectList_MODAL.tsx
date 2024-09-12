@@ -132,9 +132,9 @@ export default function SelectList_MODAL(props: SelectListModal_PROPS) {
       <Simple_MODAL
         {...{
           title: "Create a list",
-          label: "How will the new list be called?",
-          SHOW_simpleModal: SHOW_createListModal,
-          TOGGLE_simpleModal: TOGGLE_createListModal,
+
+          IS_open: SHOW_createListModal,
+          toggle: TOGGLE_createListModal,
           btnLeft: (
             <Btn text="Cancel" onPress={TOGGLE_createListModal} type="simple" />
           ),
@@ -148,6 +148,7 @@ export default function SelectList_MODAL(props: SelectListModal_PROPS) {
           ),
         }}
       >
+        <Styled_TEXT type="label">How will the new list be called?</Styled_TEXT>
         <StyledTextInput
           value={newListName}
           SET_value={SET_newListName}
