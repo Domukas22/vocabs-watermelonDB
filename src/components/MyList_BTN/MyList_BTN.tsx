@@ -6,18 +6,37 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { Styled_TEXT } from "../Styled_TEXT";
 
-import { List_MODEL } from "@/src/db/models";
+import { List_MODEL, NormalList_MODEL, Vocab_MODEL } from "@/src/db/models";
 import { MyColors } from "@/src/constants/MyColors";
 import { ICON_difficultyDot } from "../icons/icons";
+import { useEffect, useState } from "react";
+import { withObservables } from "@nozbe/watermelondb/react";
 
-export default function VocabList_BTN({
+function _MyList_BTN({
   list,
+  vocabs,
   onPress,
 }: {
   list: List_MODEL;
+  vocabs?: Vocab_MODEL[];
   onPress: () => void;
 }) {
-  const { user_id, name } = list; // Destructure from the actual List_MODEL
+  const { user, name, GET_vocabCounts: GET_listInfo } = list;
+
+  const [vocabCount, setVocabCount] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const vocabCounts = await list.GET_vocabCounts(list.id);
+        setVocabCount(vocabCounts.total);
+      } catch (error) {
+        console.error("Error fetching vocab counts:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Pressable
@@ -28,7 +47,7 @@ export default function VocabList_BTN({
         {name}
       </Styled_TEXT>
       <Styled_TEXT type="label_small" style={{ textAlign: "left" }}>
-        0 vocabs
+        {vocabs?.length || "..."} vocabs
       </Styled_TEXT>
       <View
         style={{ flexDirection: "row", gap: 8, justifyContent: "flex-end" }}
@@ -40,6 +59,14 @@ export default function VocabList_BTN({
     </Pressable>
   );
 }
+
+const enhance = withObservables(["list"], ({ list }: { list: List_MODEL }) => ({
+  list,
+  vocabs: list.vocabs,
+}));
+
+const MyList_BTN = enhance(_MyList_BTN);
+export default MyList_BTN;
 
 const s = StyleSheet.create({
   btn: {

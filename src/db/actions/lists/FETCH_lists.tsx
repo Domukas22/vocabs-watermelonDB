@@ -2,9 +2,11 @@
 //
 //
 
-import { Lists_DB } from "../..";
+import { Q } from "@nozbe/watermelondb";
+import { Lists_DB, Vocabs_DB } from "../..";
 
-export default function FETCH_lists(id?: string) {
-  if (id && id !== "") return Lists_DB.find(id);
-  return Lists_DB.query();
-}
+const FETCH_myVocabLists = (userId: string) => {
+  return Lists_DB.query(Q.where("user_id", userId));
+};
+
+export default FETCH_myVocabLists;

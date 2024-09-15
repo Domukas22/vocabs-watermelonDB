@@ -2,7 +2,7 @@
 //
 //
 
-export type Language_PROPS = {
+export type languagesArr_PROPS = {
   id: string;
   lang: {
     en: string;
@@ -12,6 +12,7 @@ export type Language_PROPS = {
     en: string;
     de: string;
   };
+  image: NodeRequire;
 };
 
 const languages_ARR = [

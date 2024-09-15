@@ -13,21 +13,22 @@ import MainScreen_VIEW from "@/src/components/mainScreen_VIEW/mainScreen_VIEW";
 import Styled_FLATLIST from "@/src/components/Flatlists/Styled_FLATLIST/Styled_FLATLIST";
 import { Styled_TEXT } from "@/src/components/Styled_TEXT";
 import StyledTextInput from "@/src/components/StyledTextInput/StyledTextInput";
-import VocabList_BTN from "@/src/components/vocabList_BTN/vocabList_BTN";
-import db, { Lists_DB } from "@/src/db";
+import MyList_BTN from "@/src/components/MyList_BTN/MyList_BTN";
+import db, { Lists_DB, Users_DB } from "@/src/db";
 import { List_MODEL } from "@/src/db/models";
 
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import MyLists_FLATLIST from "@/src/components/Flatlists/MyLists_FLATLIST/MyLists_FLATLIST";
-import ObservedLists_FLATLIST from "@/src/components/Flatlists/MyLists_FLATLIST/MyLists_FLATLIST";
+import MyVocabLists from "@/src/components/Flatlists/MyVocabLists/MyVocabLists";
 import Simple_MODAL from "@/src/components/Modals/Simple_MODAL/Simple_MODAL";
 import { USE_selectedList } from "@/src/context/SelectedList_CONTEXT";
 import CREATE_list from "@/src/db/actions/lists/CREATE_list";
+import { Q } from "@nozbe/watermelondb";
+import FETCH_myVocabLists from "@/src/db/actions/lists/FETCH_lists";
 
 export default function Profile_SCREEN() {
-  const { SET_SelectedListId, SET_SelectedListName } = USE_selectedList();
+  const { selected_LIST, SET_selectedList } = USE_selectedList();
   const [newList_NAME, SET_newListName] = useState("");
 
   const [SHOW_createListModal, SET_createListModal] = useState(false);
@@ -35,6 +36,8 @@ export default function Profile_SCREEN() {
   const TOGGLE_createListModal = () => {
     SET_createListModal((prev) => !prev);
   };
+
+  // make a custom hook out of this
 
   async function DELETE_allLists() {
     await db.write(async () => {
@@ -70,7 +73,7 @@ export default function Profile_SCREEN() {
         }
       />
 
-      <ObservedLists_FLATLIST
+      <MyVocabLists
         footerBtn={
           <Btn
             text="Create a new list"
@@ -79,14 +82,29 @@ export default function Profile_SCREEN() {
             onPress={TOGGLE_createListModal}
           />
         }
-        onPress={({ id, name }: { id: string; name: string }) => {
-          SET_SelectedListId(id);
-          SET_SelectedListName(name);
+        onPress={(list: List_MODEL) => {
+          SET_selectedList(list);
           router.push("/(tabs)/vocabs/list_PAGE");
         }}
       />
 
       <Btn text="Delelte all" type="simple" onPress={DELETE_allLists} />
+      {/* <Btn
+        text="Create user 1"
+        type="simple"
+        onPress={async () => {
+          await db.write(async () => {
+            Users_DB.create((user) => {
+              user.name = "Domas";
+              user.email = "domassirbike@gmail.com";
+              user.password = "12345";
+              user.is_premium = false;
+              user.payment_date = "";
+              user.payment_amount = 0;
+            });
+          });
+        }}
+      /> */}
 
       <Simple_MODAL
         title="Create a new list"

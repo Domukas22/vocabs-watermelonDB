@@ -12,8 +12,8 @@
 import { Q } from "@nozbe/watermelondb";
 import { Vocabs_DB } from "../..";
 
-interface FetchVocabs_PROPS {
-  filter: {
+export interface VocabFilter_PROPS {
+  filter?: {
     list_id?: string;
     id?: string;
     has_image?: boolean;
@@ -27,10 +27,12 @@ interface FetchVocabs_PROPS {
   };
 }
 
-export default async function FETCH_vocabs(props: FetchVocabs_PROPS) {
+const FETCH_vocabs = (props: VocabFilter_PROPS) => {
+  // return Vocabs_DB.query(Q.where("description", "Dummy desc")).observe();
+
   const { filter, sort } = props;
 
-  if (!filter.list_id) {
+  if (!filter?.list_id) {
     throw new Error("List ID is required.");
   }
 
@@ -40,11 +42,12 @@ export default async function FETCH_vocabs(props: FetchVocabs_PROPS) {
   // Add optional filters using Q.and
   const conditions = [];
 
-  if (filter.list_id) {
-    conditions.push(Q.where("list_id", filter.list_id));
+  if (filter?.list_id) {
+    if (filter.list_id !== "all")
+      conditions.push(Q.where("list_id", filter.list_id));
   }
 
-  if (filter.id) {
+  if (filter?.id) {
     conditions.push(Q.where("id", filter.id));
   }
 
@@ -88,6 +91,7 @@ export default async function FETCH_vocabs(props: FetchVocabs_PROPS) {
 
   // Combine all conditions with Q.and
   query = query.extend(Q.and(...conditions));
+  return query.observe();
+};
 
-  return await query.fetch();
-}
+export default FETCH_vocabs;

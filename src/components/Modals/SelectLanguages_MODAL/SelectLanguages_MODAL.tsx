@@ -107,7 +107,7 @@ export default function SelectLanguages_MODAL(
               <Input_WRAP label="Other languages">
                 {languages
                   .filter((lang) => !langIDs.includes(lang.id))
-                  .map((lang) => {
+                  .map((lang, index) => {
                     return (
                       <Btn
                         iconLeft={
@@ -127,6 +127,7 @@ export default function SelectLanguages_MODAL(
                         type="simple"
                         style={{ flex: 1 }}
                         text_STYLES={{ flex: 1 }}
+                        key={lang?.id + index}
                       />
                     );
                   })}
@@ -183,5 +184,34 @@ export default function SelectLanguages_MODAL(
         />
       </SafeAreaView>
     </Modal>
+  );
+}
+
+function Lang_BTN({ lang, langIDs, HANDLE_lang }) {
+  return (
+    <Btn
+      iconLeft={
+        <Image
+          style={{
+            width: 24,
+            height: 16,
+            borderRadius: 2,
+            marginRight: 4,
+          }}
+          source={lang.image}
+        />
+      }
+      iconRight={
+        <ICON_X
+          color={langIDs.includes(lang.id) ? "primary" : "grey"}
+          rotate={langIDs.includes(lang.id)}
+        />
+      }
+      text={lang?.lang.en}
+      onPress={() => HANDLE_lang(lang.id)}
+      type={langIDs.includes(lang.id) ? "active" : "simple"}
+      style={{ flex: 1 }}
+      text_STYLES={{ flex: 1 }}
+    />
   );
 }

@@ -12,31 +12,27 @@ import { Styled_TEXT } from "@/src/components/Styled_TEXT";
 import Subnav from "@/src/components/Subnav/Subnav";
 
 import { MyColors } from "@/src/constants/MyColors";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, Modal, SafeAreaView, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Simple_MODAL from "../Simple_MODAL/Simple_MODAL";
 import StyledTextInput from "@/src/components/StyledTextInput/StyledTextInput";
 import { BlurView } from "expo-blur";
+import { List_MODEL } from "@/src/db/models";
+import { Lists_DB } from "@/src/db";
 
 interface SelectListModal_PROPS {
   SHOW_selectListModal: boolean;
   TOGGLE_selectListModal: () => void;
-  listID: string;
-  SET_listID: React.Dispatch<React.SetStateAction<string>>;
-  lists: {
-    id: string;
-  }[];
+  list: List_MODEL;
+  SET_list: (list: List_MODEL) => void;
 }
 
 export default function SelectList_MODAL(props: SelectListModal_PROPS) {
-  const {
-    SHOW_selectListModal,
-    TOGGLE_selectListModal,
-    listID,
-    SET_listID,
-    lists,
-  } = props;
+  const { SHOW_selectListModal, TOGGLE_selectListModal, list, SET_list } =
+    props;
+
+  const [modal_LISTS, SET_modalLists] = useState<List_MODEL[] | null>(null);
 
   const [search, SET_search] = useState("");
   const [SHOW_createListModal, SET_createListModal] = useState(false);
@@ -47,6 +43,15 @@ export default function SelectList_MODAL(props: SelectListModal_PROPS) {
     SET_newListName("");
     SET_createListModal((prev) => !prev);
   }
+
+  useEffect(() => {
+    const GET_lists = async () => {
+      const results = await Lists_DB.query();
+      SET_modalLists(results);
+    };
+
+    GET_lists();
+  }, []);
 
   return (
     <Modal
@@ -78,45 +83,49 @@ export default function SelectList_MODAL(props: SelectListModal_PROPS) {
           <SearchBar value={search} SET_value={SET_search} />
         </Subnav>
 
-        <FlatList
-          data={
-            search === ""
-              ? lists
-              : lists.filter((item) =>
-                  item.id.toLowerCase().includes(search.toLowerCase())
-                )
-          }
-          ListHeaderComponent={
-            <Styled_TEXT type="label" style={{ paddingBottom: 8 }}>
-              {search
-                ? `5 results for '${search}'`
-                : "Select a list for your vocab"}
-            </Styled_TEXT>
-          }
-          ListFooterComponent={
-            <Btn
-              iconLeft={<ICON_X color="primary" />}
-              text="Create a new list"
-              onPress={TOGGLE_createListModal}
-              type="seethrough_primary"
-              style={{ flex: 1 }}
-            />
-          }
-          renderItem={({ item }) => (
-            <Btn
-              text={item.id}
-              onPress={() => {
-                SET_listID(item.id);
-                SET_search("");
-              }}
-              type={listID === item.id ? "active" : "simple"}
-              style={{ flex: 1, marginBottom: 8 }}
-              text_STYLES={{ flex: 1 }}
-            />
-          )}
-          keyExtractor={(item) => item.id}
-          style={{ padding: 12, flex: 1 }}
-        />
+        {modal_LISTS ? (
+          <FlatList
+            data={
+              search === ""
+                ? modal_LISTS
+                : modal_LISTS.filter((list) =>
+                    list.name.toLowerCase().includes(search.toLowerCase())
+                  )
+            }
+            ListHeaderComponent={
+              <Styled_TEXT type="label" style={{ paddingBottom: 8 }}>
+                {search
+                  ? `5 results for '${search}'`
+                  : "Select a list for your vocab"}
+              </Styled_TEXT>
+            }
+            ListFooterComponent={
+              <Btn
+                iconLeft={<ICON_X color="primary" />}
+                text="Create a new list"
+                onPress={TOGGLE_createListModal}
+                type="seethrough_primary"
+                style={{ flex: 1 }}
+              />
+            }
+            renderItem={({ item }: { item: List_MODEL }) => (
+              <Btn
+                text={item.name}
+                onPress={() => {
+                  SET_list(item);
+                  SET_search("");
+                }}
+                type={item.id === list.id ? "active" : "simple"}
+                style={{ flex: 1, marginBottom: 8 }}
+                text_STYLES={{ flex: 1 }}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+            style={{ padding: 12, flex: 1 }}
+          />
+        ) : (
+          <Styled_TEXT>Loading</Styled_TEXT>
+        )}
 
         <Footer
           btnLeft={

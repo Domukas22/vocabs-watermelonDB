@@ -2,22 +2,47 @@
 //
 //
 
-import db, { Lists_DB, Vocabs_DB } from "../..";
+import React from "react";
+import db, { Lists_DB, Translations_DB, Vocabs_DB } from "../..";
 
-import { List_MODEL, Vocab_MODEL } from "../../models";
+import { List_MODEL, Translation_MODEL, Vocab_MODEL } from "../../models";
 
-export default async function CREATE_vocab(vocab: Vocab_MODEL) {
+export type CreateVocab_PROPS = {
+  list: List_MODEL;
+
+  id: string;
+  difficulty: 1 | 2 | 3;
+  description?: string;
+  image?: string;
+  translations: {
+    vocab_id: string;
+    lang_id: string;
+    text: string;
+  }[];
+
+  is_public?: boolean;
+  is_publicly_visible?: boolean;
+};
+
+export default async function CREATE_vocab(incomingVocab: CreateVocab_PROPS) {
   await db.write(async () => {
-    await Vocabs_DB.create((newVocab: Vocab_MODEL) => {
-      newVocab.list_id = vocab.list_id;
-      newVocab.difficulty = vocab.difficulty || 3;
-      newVocab.description = vocab.description || "Dummy description";
-
-      newVocab.image = "";
-      newVocab.is_public = false;
-      newVocab.is_publicly_visible = false;
-      newVocab.created_at = Date.now(); // Set the creation timestamp
-      newVocab.updated_at = Date.now(); // Set the updated timestamp
+    // Create a new vocab record
+    const newVocab = await Vocabs_DB.create((vocab) => {
+      vocab.list.set(incomingVocab.list);
+      vocab.difficulty = incomingVocab.difficulty || 3;
+      vocab.description = incomingVocab.description || "Dummy description";
+      vocab.image = incomingVocab.image || "";
+      vocab.is_public = incomingVocab.is_public || false;
+      vocab.is_publicly_visible = incomingVocab.is_publicly_visible || false;
     });
+
+    // Create translations and link them to the new vocab
+    for (const incomingTR of incomingVocab.translations) {
+      await Translations_DB.create((tr) => {
+        tr.vocab.set(newVocab); // Link the translation to the vocab
+        tr.lang_id = incomingTR.lang_id;
+        tr.text = incomingTR.text;
+      });
+    }
   });
 }

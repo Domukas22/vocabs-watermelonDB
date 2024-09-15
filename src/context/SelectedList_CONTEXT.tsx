@@ -3,31 +3,22 @@
 //
 
 import React, { createContext, useState, useContext } from "react";
+import { List_MODEL } from "../db/models";
 
 interface ListContextType {
-  selectedList_ID: string | null;
-  selectedList_NAME: string | null;
-  SET_SelectedListId: (id: string) => void;
-  SET_SelectedListName: (name: string) => void;
+  selected_LIST: List_MODEL;
+  SET_selectedList: (list: List_MODEL) => void;
 }
 
 const ListContext = createContext<ListContextType | undefined>(undefined);
 
 export const SelectedList_PROVIDER: React.FC = ({ children }) => {
-  const [selectedList_ID, SET_SelectedListId] = useState<string | null>(null);
-  const [selectedList_NAME, SET_SelectedListName] = useState<string | null>(
-    null
+  const [selected_LIST, SET_selectedList] = useState<List_MODEL | undefined>(
+    undefined
   );
 
   return (
-    <ListContext.Provider
-      value={{
-        selectedList_ID,
-        selectedList_NAME,
-        SET_SelectedListId,
-        SET_SelectedListName,
-      }}
-    >
+    <ListContext.Provider value={{ selected_LIST, SET_selectedList }}>
       {children}
     </ListContext.Provider>
   );

@@ -17,7 +17,7 @@ import {
 } from "@/src/components/icons/icons";
 import { MyColors } from "@/src/constants/MyColors";
 import { vocabDummies } from "@/src/constants/dummyVocabs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Modal,
@@ -38,30 +38,37 @@ import { router } from "expo-router";
 import MainScreen_VIEW from "@/src/components/mainScreen_VIEW/mainScreen_VIEW";
 import Styled_FLATLIST from "@/src/components/Flatlists/Styled_FLATLIST/Styled_FLATLIST";
 import { USE_selectedList } from "@/src/context/SelectedList_CONTEXT";
-import ObservedVocabsOfList_FLATLIST from "@/src/components/Flatlists/VocabsOfList_FLATLIST/VocabsOfList_FLATLIST";
+import Vocabs from "@/src/components/Flatlists/Vocabs/Vocabs";
 import db, { Vocabs_DB } from "@/src/db";
+import { Vocab_MODEL } from "@/src/db/models";
+import { Q } from "@nozbe/watermelondb";
+import FETCH_vocabs from "@/src/db/actions/vocabs/FETCH_vocabs";
+import { useToggle } from "@/src/hooks/useToggle/useToggle";
 
 export default function Home_SCREEN() {
-  const { selectedList_ID, selectedList_NAME } = USE_selectedList();
-  const [SHOW_displaySettingsModal, SET_displaySettingsModalOpen] =
-    useState(false);
-  const [SHOW_manageVocabModal, SET_manageVocabModal] = useState(false);
+  const { selected_LIST, SET_selectedList } = USE_selectedList();
+  const [SHOW_displaySettingsModal, TOGGLE_displaySettings] = useToggle(false);
+  const [SHOW_manageVocabModal, TOGGLE_manageVocab] = useToggle(false);
 
-  const [SHOW_image, SET_showImage] = useState(false);
-  const [SHOW_listName, SET_showListName] = useState(false);
-  const [SHOW_desc, SET_showDesc] = useState(false);
-  const [SHOW_flags, SET_showFlags] = useState(false);
-  const [SHOW_difficulty, SET_showDifficulty] = useState(true);
+  const [displayProps, SET_displayProps] = useState({
+    search: "",
+    sorting: "shuffle",
+    image: true,
+    listName: true,
+    desc: true,
+    flags: true,
+    difficulty: true,
+  });
 
-  const [sorting, SET_sorting] = useState("shuffle");
+  const [selected_VOCAB, SET_selectedVocab] = useState<Vocab_MODEL | null>(
+    null
+  );
 
-  const [search, SET_search] = useState("");
+  function TOGGLE_vocabModal(vocab: Vocab_MODEL) {
+    if (SHOW_manageVocabModal) SET_selectedVocab(null);
+    if (!SHOW_manageVocabModal && !selected_VOCAB) SET_selectedVocab(vocab);
 
-  function TOGGLE_displaySettings() {
-    SET_displaySettingsModalOpen((prev) => !prev);
-  }
-  function TOGGLE_manageVocab() {
-    SET_manageVocabModal((prev) => !prev);
+    TOGGLE_manageVocab();
   }
 
   async function DELETE_allVocabs() {
@@ -80,7 +87,7 @@ export default function Home_SCREEN() {
   return (
     <MainScreen_VIEW>
       <Header
-        title={selectedList_NAME || "none"}
+        title={selected_LIST.name || "none"}
         btnLeft={
           <Btn
             type="seethrough"
@@ -100,7 +107,12 @@ export default function Home_SCREEN() {
       />
 
       <Subnav>
-        <SearchBar value={search} SET_value={SET_search} />
+        <SearchBar
+          value={displayProps.search}
+          SET_value={(val) =>
+            SET_displayProps((prev) => ({ ...prev, search: val }))
+          }
+        />
         <Btn
           type="simple"
           iconLeft={<ICON_displaySettings />}
@@ -111,50 +123,29 @@ export default function Home_SCREEN() {
           type="simple"
           iconLeft={<ICON_X big={true} color="primary" />}
           style={{ borderRadius: 100 }}
-          onPress={TOGGLE_manageVocab}
+          onPress={TOGGLE_vocabModal}
         />
       </Subnav>
 
-      {/* <Styled_FLATLIST
-        data={vocabDummies.vocabs}
-        renderItem={({ item }) => (
-          <Vocab
-            key={item.id}
-            {...item}
-            listID={vocabDummies.id}
-            listName={vocabDummies.name}
-            displayProps={{
-              SHOW_image,
-              SHOW_listName,
-              SHOW_desc,
-              SHOW_flags,
-              SHOW_difficulty,
-            }}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-        style={s.vocabWrap}
-      /> */}
-
-      <ObservedVocabsOfList_FLATLIST
-        selectedList_ID={selectedList_ID}
-        displayProps={{
-          SHOW_desc,
-          SHOW_image,
-          SHOW_flags,
-          SHOW_listName,
-          SHOW_difficulty,
+      <Vocabs
+        selected_LIST={selected_LIST}
+        filters={{
+          filter: {
+            list_id: selected_LIST.id,
+          },
         }}
+        TOGGLE_vocabModal={TOGGLE_vocabModal}
+        displayProps={displayProps}
       />
 
-      <DisplaySettings_MODAL
+      {/* <DisplaySettings_MODAL
         {...{
           sorting,
-          SHOW_desc,
-          SHOW_image,
-          SHOW_flags,
-          SHOW_listName,
-          SHOW_difficulty,
+          display.desc,
+          display.image,
+          display.flags,
+          display.listName,
+          display.difficulty,
           SHOW_displaySettingsModal,
           SET_sorting,
           SET_showDesc,
@@ -164,15 +155,22 @@ export default function Home_SCREEN() {
           SET_showDifficulty,
           TOGGLE_displaySettings,
         }}
-      />
+      /> */}
+
       <ManageVocab_MODAL
         {...{
-          IS_edit: false,
           SHOW_manageVocabModal,
-          TOGGLE_manageVocab,
+          TOGGLE_vocabModal,
+          selected_LIST,
+          selected_VOCAB,
         }}
       />
-      <Btn text="Delelte all" type="simple" onPress={DELETE_allVocabs} />
+      <Btn
+        text="Delelte all"
+        type="simple"
+        onPress={DELETE_allVocabs}
+        style={{ marginTop: "auto" }}
+      />
     </MainScreen_VIEW>
   );
 }

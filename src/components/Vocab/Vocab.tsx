@@ -8,23 +8,25 @@ import { ICON_difficultyDot, ICON_flag } from "../icons/icons";
 import { useState } from "react";
 import Btn from "../btn/btn";
 import { Styled_TEXT } from "../Styled_TEXT";
-import { Vocab_MODEL } from "@/src/db/models";
+import { List_MODEL, Vocab_MODEL } from "@/src/db/models";
+import { withObservables } from "@nozbe/watermelondb/react";
 
 interface VocabProps {
   vocab: Vocab_MODEL;
   displayProps: {
-    SHOW_image: boolean;
-    SHOW_listName: boolean;
-    SHOW_desc: boolean;
-    SHOW_flags: boolean;
-    SHOW_difficulty: boolean;
+    image: boolean;
+    listName: boolean;
+    desc: boolean;
+    flags: boolean;
+    difficulty: boolean;
   };
+  openEdit: () => void;
+  selected_LIST: List_MODEL;
 }
 
-export default function Vocab({ vocab, displayProps }: VocabProps) {
+function _Vocab({ vocab, displayProps, openEdit, selected_LIST }: VocabProps) {
   const [open, SET_open] = useState(false);
-  const { SHOW_image, SHOW_listName, SHOW_desc, SHOW_flags, SHOW_difficulty } =
-    displayProps;
+  const { image, listName, desc, flags, difficulty } = displayProps;
 
   function HANDLE_editVocab() {}
   function TOGGLE_vocab() {
@@ -53,22 +55,23 @@ export default function Vocab({ vocab, displayProps }: VocabProps) {
                   ? { backgroundColor: MyColors.btn_3 }
                   : { backgroundColor: MyColors.btn_2 }, // Pressed and non-pressed styles
               ]}
-              // onPress={TOGGLE_vocab}
-              onPress={() => {}}
+              onPress={openEdit}
             >
-              <Styled_TEXT type="vocabTitle">The title</Styled_TEXT>
+              <Styled_TEXT type="vocabTitle">{vocab.description}</Styled_TEXT>
 
-              {SHOW_listName && (
-                <Styled_TEXT type="label_small">Name of the list</Styled_TEXT>
+              {listName && (
+                <Styled_TEXT type="label_small">
+                  {selected_LIST.name}
+                </Styled_TEXT>
               )}
-              {SHOW_desc && (
+              {desc && (
                 <Styled_TEXT type="label_small">
                   {vocab.description}
                 </Styled_TEXT>
               )}
-              {(SHOW_flags || SHOW_difficulty) && (
+              {(flags || difficulty) && (
                 <View style={s.topIconWrap}>
-                  {/* {SHOW_flags &&
+                  {/* {flags &&
                     content.translations.map((tr) => (
                       <ICON_flag
                         key={content.id + "/" + tr.lang}
@@ -76,7 +79,7 @@ export default function Vocab({ vocab, displayProps }: VocabProps) {
                       />
                     ))} */}
                   <Styled_TEXT type="label_small">Flags</Styled_TEXT>
-                  {SHOW_difficulty && (
+                  {difficulty && (
                     <ICON_difficultyDot difficulty={vocab.difficulty} />
                   )}
                 </View>
@@ -131,6 +134,16 @@ export default function Vocab({ vocab, displayProps }: VocabProps) {
     </View>
   );
 }
+const enhance = withObservables(
+  ["vocab"],
+  ({ vocab }: { vocab: Vocab_MODEL }) => ({
+    vocab,
+    translations: vocab.translations,
+  })
+);
+
+const Vocab = enhance(_Vocab);
+export default Vocab;
 
 const s = StyleSheet.create({
   vocab: {
