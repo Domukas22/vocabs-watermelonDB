@@ -47,7 +47,9 @@ function _MyList_BTN({
         {name}
       </Styled_TEXT>
       <Styled_TEXT type="label_small" style={{ textAlign: "left" }}>
-        {vocabs?.length || "..."} vocabs
+        {vocabs && vocabs?.length > 0
+          ? `${vocabs.length} vocabs`
+          : "Empty list"}
       </Styled_TEXT>
       <View
         style={{ flexDirection: "row", gap: 8, justifyContent: "flex-end" }}

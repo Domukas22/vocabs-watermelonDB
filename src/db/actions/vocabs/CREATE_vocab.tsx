@@ -14,14 +14,13 @@ export type CreateVocab_PROPS = {
   difficulty: 1 | 2 | 3;
   description?: string;
   image?: string;
+  is_public?: boolean;
+  is_publicly_visible?: boolean;
+
   translations: {
-    vocab_id: string;
     lang_id: string;
     text: string;
   }[];
-
-  is_public?: boolean;
-  is_publicly_visible?: boolean;
 };
 
 export default async function CREATE_vocab(incomingVocab: CreateVocab_PROPS) {
@@ -39,6 +38,8 @@ export default async function CREATE_vocab(incomingVocab: CreateVocab_PROPS) {
     // Create translations and link them to the new vocab
     for (const incomingTR of incomingVocab.translations) {
       await Translations_DB.create((tr) => {
+        console.log("CREATE");
+
         tr.vocab.set(newVocab); // Link the translation to the vocab
         tr.lang_id = incomingTR.lang_id;
         tr.text = incomingTR.text;

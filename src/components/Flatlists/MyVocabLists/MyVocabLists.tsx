@@ -19,6 +19,7 @@ import FETCH_myVocabLists from "@/src/db/actions/lists/FETCH_lists";
 import { Q } from "@nozbe/watermelondb";
 import { CreateVocab_PROPS } from "@/src/db/actions/vocabs/CREATE_vocab";
 import { combineLatest, switchMap } from "rxjs";
+import { user_id } from "@/src/constants/globalTemporary";
 
 interface MyVocabLists_PROPS {
   lists: List_MODEL[];
@@ -47,7 +48,7 @@ function _MyVocabLists({ lists, footerBtn, onPress }: MyVocabLists_PROPS) {
 const enhance = withObservables(
   ["lists"],
   ({ lists }: { lists: List_MODEL[] }) => ({
-    lists: Lists_DB.query(Q.where("user_id", "kV62afyfHOkdgZ5V")),
+    lists: Lists_DB.query(Q.where("user_id", user_id)),
     // vocabs: Vocabs_DB,
     // vocabs,
   })

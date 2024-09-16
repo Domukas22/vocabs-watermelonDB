@@ -95,7 +95,7 @@ export class Vocab_MODEL extends Model {
   };
   @children("translations") translations!: Translation_MODEL[];
 
-  @immutableRelation("lists", "list_id") list!: List_MODEL;
+  @relation("lists", "list_id") list!: List_MODEL;
   @field("difficulty") difficulty!: 1 | 2 | 3;
   @text("description") description!: string;
   @field("image") image!: string;

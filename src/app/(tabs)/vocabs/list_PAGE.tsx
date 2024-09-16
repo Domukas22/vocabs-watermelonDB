@@ -38,9 +38,9 @@ import { router } from "expo-router";
 import MainScreen_VIEW from "@/src/components/mainScreen_VIEW/mainScreen_VIEW";
 import Styled_FLATLIST from "@/src/components/Flatlists/Styled_FLATLIST/Styled_FLATLIST";
 import { USE_selectedList } from "@/src/context/SelectedList_CONTEXT";
-import Vocabs from "@/src/components/Flatlists/Vocabs/Vocabs";
+import ListOfVocabs from "@/src/components/Flatlists/Vocabs/Vocabs";
 import db, { Vocabs_DB } from "@/src/db";
-import { Vocab_MODEL } from "@/src/db/models";
+import { List_MODEL, Translation_MODEL, Vocab_MODEL } from "@/src/db/models";
 import { Q } from "@nozbe/watermelondb";
 import FETCH_vocabs from "@/src/db/actions/vocabs/FETCH_vocabs";
 import { useToggle } from "@/src/hooks/useToggle/useToggle";
@@ -60,14 +60,39 @@ export default function Home_SCREEN() {
     difficulty: true,
   });
 
-  const [selected_VOCAB, SET_selectedVocab] = useState<Vocab_MODEL | null>(
-    null
+  const [modalContent, SET_modalContent] = useState(
+    {
+      vocab: null as Vocab_MODEL | null,
+      list: null as List_MODEL | null,
+      translations: null as { list_id: string; text: string } | null,
+    } || null
   );
 
-  function TOGGLE_vocabModal(vocab: Vocab_MODEL) {
-    if (SHOW_manageVocabModal) SET_selectedVocab(null);
-    if (!SHOW_manageVocabModal && !selected_VOCAB) SET_selectedVocab(vocab);
+  function HANLDE_modalContent(
+    vocab?: Vocab_MODEL,
+    list?: List_MODEL,
+    translations?: { list_id: string; text: string }
+  ) {
+    if (SHOW_manageVocabModal)
+      SET_modalContent({ vocab: null, list: null, translations: null });
+    if (
+      !SHOW_manageVocabModal &&
+      !modalContent.vocab &&
+      !modalContent.list &&
+      !modalContent.translations &&
+      vocab &&
+      list &&
+      translations
+    )
+      SET_modalContent({ vocab, list, translations });
+  }
 
+  function TOGGLE_vocabModal(
+    vocab?: Vocab_MODEL,
+    list?: List_MODEL,
+    translations?: { list_id: string; text: string }
+  ) {
+    HANLDE_modalContent(vocab, list, translations);
     TOGGLE_manageVocab();
   }
 
@@ -123,11 +148,11 @@ export default function Home_SCREEN() {
           type="simple"
           iconLeft={<ICON_X big={true} color="primary" />}
           style={{ borderRadius: 100 }}
-          onPress={TOGGLE_vocabModal}
+          onPress={() => TOGGLE_vocabModal()}
         />
       </Subnav>
 
-      <Vocabs
+      <ListOfVocabs
         selected_LIST={selected_LIST}
         filters={{
           filter: {
@@ -162,7 +187,7 @@ export default function Home_SCREEN() {
           SHOW_manageVocabModal,
           TOGGLE_vocabModal,
           selected_LIST,
-          selected_VOCAB,
+          modalContent,
         }}
       />
       <Btn

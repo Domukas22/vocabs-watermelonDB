@@ -3,16 +3,20 @@
 //
 
 import { MyColors } from "@/src/constants/MyColors";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { ICON_difficultyDot, ICON_flag } from "../icons/icons";
 import { useState } from "react";
 import Btn from "../btn/btn";
 import { Styled_TEXT } from "../Styled_TEXT";
-import { List_MODEL, Vocab_MODEL } from "@/src/db/models";
+import { List_MODEL, Translation_MODEL, Vocab_MODEL } from "@/src/db/models";
 import { withObservables } from "@nozbe/watermelondb/react";
+import { useToggle } from "@/src/hooks/useToggle/useToggle";
+import languages from "@/src/constants/languages";
 
 interface VocabProps {
   vocab: Vocab_MODEL;
+  translations: Translation_MODEL[];
+  list: List_MODEL;
   displayProps: {
     image: boolean;
     listName: boolean;
@@ -20,19 +24,31 @@ interface VocabProps {
     flags: boolean;
     difficulty: boolean;
   };
-  openEdit: () => void;
+  TOGGLE_vocabModal: (vocab: Vocab_MODEL, list: List_MODEL) => void;
   selected_LIST: List_MODEL;
 }
 
-function _Vocab({ vocab, displayProps, openEdit, selected_LIST }: VocabProps) {
-  const [open, SET_open] = useState(false);
+// TOGGLE_vocabModal needs to also pass in th etranslations, so we dont have to pass them async and get a delayed manageVocabModal update
+function _Vocab({
+  vocab,
+  translations,
+  displayProps,
+  list,
+  TOGGLE_vocabModal,
+  selected_LIST,
+}: VocabProps) {
+  const [open, TOGGLE_vocab] = useToggle(false);
   const { image, listName, desc, flags, difficulty } = displayProps;
 
   function HANDLE_editVocab() {}
-  function TOGGLE_vocab() {
-    SET_open(!open);
-  }
+
   function HANDLE_editDifficulty() {}
+
+  // console.log(languages[translations?.[0].lang_id].lang);
+  // console.log(translations?.[0]?.lang_id);
+  // console.log(languages["en"]);
+
+  // TOGGLE_vocabModal(vocab)
 
   return (
     <View
@@ -55,7 +71,7 @@ function _Vocab({ vocab, displayProps, openEdit, selected_LIST }: VocabProps) {
                   ? { backgroundColor: MyColors.btn_3 }
                   : { backgroundColor: MyColors.btn_2 }, // Pressed and non-pressed styles
               ]}
-              onPress={openEdit}
+              onPress={TOGGLE_vocab}
             >
               <Styled_TEXT type="vocabTitle">{vocab.description}</Styled_TEXT>
 
@@ -88,12 +104,22 @@ function _Vocab({ vocab, displayProps, openEdit, selected_LIST }: VocabProps) {
           </View>
         )}
       </View>
-      {/* {open && (
+      {open && (
         <View>
-          {content.translations.map((tr) => (
-            <View key={tr.text + content.id} style={s.bottomTr}>
+          {translations.map((tr, index) => (
+            <View key={tr.text + vocab.id} style={s.bottomTr}>
               <View style={s.bottomVocabFlag_WRAP}>
-                <ICON_flag key={content.id + "/" + tr.lang} lang={tr.lang} />
+                {/* <ICON_flag key={content.id + "/" + tr.lang} lang={tr.lang} /> */}
+                <Image
+                  style={{
+                    width: 24,
+                    height: 16,
+                    borderRadius: 2,
+                    marginRight: 4,
+                  }}
+                  // source={lang.image}
+                  source={languages[tr?.lang_id].image}
+                />
               </View>
               <Styled_TEXT
                 type="vocabTitle"
@@ -104,14 +130,14 @@ function _Vocab({ vocab, displayProps, openEdit, selected_LIST }: VocabProps) {
             </View>
           ))}
           <View style={s.bottomText_WRAP}>
-            <Styled_TEXT type="label_small">{content.listName}</Styled_TEXT>
-            <Styled_TEXT type="label_small">{content.description}</Styled_TEXT>
+            <Styled_TEXT type="label_small">{list.name}</Styled_TEXT>
+            <Styled_TEXT type="label_small">{vocab.description}</Styled_TEXT>
           </View>
           <View style={s.bottomBtn_WRAP}>
             <Btn
               type="simple"
               style={{ flex: 1 }}
-              onPress={HANDLE_editVocab}
+              onPress={() => TOGGLE_vocabModal(vocab, list, translations)}
               text="Edit vocab"
               text_STYLES={{ textAlign: "center" }}
             />
@@ -122,15 +148,12 @@ function _Vocab({ vocab, displayProps, openEdit, selected_LIST }: VocabProps) {
               type="simple"
               onPress={HANDLE_editDifficulty}
               iconLeft={
-                <ICON_difficultyDot
-                  difficulty={content.difficulty}
-                  big={true}
-                />
+                <ICON_difficultyDot difficulty={vocab.difficulty} big={true} />
               }
             />
           </View>
         </View>
-      )} */}
+      )}
     </View>
   );
 }
@@ -139,6 +162,7 @@ const enhance = withObservables(
   ({ vocab }: { vocab: Vocab_MODEL }) => ({
     vocab,
     translations: vocab.translations,
+    list: vocab.list,
   })
 );
 

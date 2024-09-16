@@ -47,7 +47,7 @@ function _Vocabs({
           <Vocab
             vocab={item}
             displayProps={displayProps}
-            openEdit={() => TOGGLE_vocabModal(item)}
+            TOGGLE_vocabModal={TOGGLE_vocabModal}
             selected_LIST={selected_LIST}
           />
           {/* <Styled_TEXT>list id is: {item.list}</Styled_TEXT> */}
@@ -68,5 +68,5 @@ const enhance = withObservables(
   })
 );
 
-const Vocabs = enhance(_Vocabs);
-export default Vocabs;
+const ListOfVocabs = enhance(_Vocabs);
+export default ListOfVocabs;

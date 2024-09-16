@@ -2,7 +2,7 @@
 //
 //
 
-import languages_ARR from "@/src/constants/languages";
+import languages from "@/src/constants/languages";
 import { MyColors } from "@/src/constants/MyColors";
 import { Image, StyleSheet, View } from "react-native";
 import Svg, { Path, Circle, Rect } from "react-native-svg";
@@ -17,16 +17,17 @@ export function ICON_flag({
   lang = "en",
 }: {
   big?: boolean;
-  lang?: "string";
+  lang?: string;
 }) {
   const _size = big
     ? { width: sizing.small, height: 14 }
     : { width: sizing.normal, height: 11 };
 
-  const targetLang = languages_ARR.find((l) => l.id === lang);
-
   return (
-    <Image style={[_size, { borderRadius: 2 }]} source={targetLang?.image} />
+    <Image
+      style={[_size, { borderRadius: 2 }]}
+      source={languages[lang].image}
+    />
   );
 }
 export function ICON_difficultyDot({

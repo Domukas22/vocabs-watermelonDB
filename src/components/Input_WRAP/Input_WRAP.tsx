@@ -2,7 +2,7 @@
 //
 //
 
-import { View } from "react-native";
+import { StyleProp, StyleSheetProperties, View } from "react-native";
 import { Styled_TEXT } from "../Styled_TEXT";
 import Btn from "../btn/btn";
 import { MyColors } from "@/src/constants/MyColors";
@@ -13,6 +13,7 @@ interface _Input_WRAP {
   labelIcon?: React.ReactNode;
   row?: boolean;
   children: React.ReactNode;
+  styles?: StyleSheetProperties;
 }
 
 export default function Input_WRAP({
@@ -20,17 +21,21 @@ export default function Input_WRAP({
   labelIcon,
   row = false,
   children,
+  styles,
 }: _Input_WRAP) {
   return (
     <View
-      style={{
-        paddingHorizontal: 12,
-        paddingVertical: 16,
-        paddingBottom: 20,
-        gap: 8,
-        borderBottomWidth: 1,
-        borderColor: MyColors.border_white_005,
-      }}
+      style={[
+        {
+          paddingHorizontal: 12,
+          paddingVertical: 16,
+          paddingBottom: 20,
+          gap: 8,
+          borderBottomWidth: 1,
+          borderColor: MyColors.border_white_005,
+        },
+        { paddingBottom: 20 },
+      ]}
     >
       <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
         {labelIcon && labelIcon}

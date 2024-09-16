@@ -52,7 +52,8 @@ const s = StyleSheet.create({
     height: 50,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    alignItems: "flex-start",
+
+    textAlignVertical: "top",
     fontSize: 18,
     fontFamily: "Nunito-Light",
 

@@ -78,8 +78,8 @@ export default function SelectLanguages_MODAL(
           {search === "" && (
             <>
               <Input_WRAP label="Selected languages">
-                {languages
-                  .filter((lang) => langIDs.includes(lang.id))
+                {Object.values(languages)
+                  .filter((lang) => langIDs?.includes(lang.id))
                   .map((lang) => {
                     return (
                       <Btn
@@ -105,8 +105,8 @@ export default function SelectLanguages_MODAL(
                   })}
               </Input_WRAP>
               <Input_WRAP label="Other languages">
-                {languages
-                  .filter((lang) => !langIDs.includes(lang.id))
+                {Object.values(languages)
+                  .filter((lang) => !langIDs?.includes(lang.id))
                   .map((lang, index) => {
                     return (
                       <Btn
@@ -136,7 +136,7 @@ export default function SelectLanguages_MODAL(
           )}
           {search !== "" && (
             <Input_WRAP label="Other languages">
-              {languages
+              {Object.values(languages)
                 .filter((lang) =>
                   lang.lang.en.toLowerCase().includes(search.toLowerCase())
                 )
@@ -156,13 +156,15 @@ export default function SelectLanguages_MODAL(
                       }
                       iconRight={
                         <ICON_X
-                          color={langIDs.includes(lang.id) ? "primary" : "grey"}
-                          rotate={langIDs.includes(lang.id)}
+                          color={
+                            langIDs?.includes(lang.id) ? "primary" : "grey"
+                          }
+                          rotate={langIDs?.includes(lang.id)}
                         />
                       }
                       text={lang?.lang.en}
                       onPress={() => HANDLE_lang(lang.id)}
-                      type={langIDs.includes(lang.id) ? "active" : "simple"}
+                      type={langIDs?.includes(lang.id) ? "active" : "simple"}
                       style={{ flex: 1 }}
                       text_STYLES={{ flex: 1 }}
                     />
@@ -203,13 +205,13 @@ function Lang_BTN({ lang, langIDs, HANDLE_lang }) {
       }
       iconRight={
         <ICON_X
-          color={langIDs.includes(lang.id) ? "primary" : "grey"}
-          rotate={langIDs.includes(lang.id)}
+          color={langIDs?.includes(lang.id) ? "primary" : "grey"}
+          rotate={langIDs?.includes(lang.id)}
         />
       }
       text={lang?.lang.en}
       onPress={() => HANDLE_lang(lang.id)}
-      type={langIDs.includes(lang.id) ? "active" : "simple"}
+      type={langIDs?.includes(lang.id) ? "active" : "simple"}
       style={{ flex: 1 }}
       text_STYLES={{ flex: 1 }}
     />
