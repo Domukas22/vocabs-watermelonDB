@@ -49,6 +49,8 @@ import { Q } from "@nozbe/watermelondb";
 import HighlightableTextInput from "../../TEST";
 import Test2 from "../../TEST2";
 import SimpleRichTextEditor from "../../TEST2";
+import Simple_MODAL from "../Simple_MODAL/Simple_MODAL";
+import { preventAutoHideAsync } from "expo-splash-screen";
 
 interface ManageVocabModal_PROPS {
   modalContent: {
@@ -58,10 +60,16 @@ interface ManageVocabModal_PROPS {
   };
   SHOW_manageVocabModal: boolean;
   TOGGLE_vocabModal: () => void;
+  selected_LIST: List_MODEL;
 }
 
 export default function ManageVocab_MODAL(props: ManageVocabModal_PROPS) {
-  const { SHOW_manageVocabModal, TOGGLE_vocabModal, modalContent } = props;
+  const {
+    SHOW_manageVocabModal,
+    TOGGLE_vocabModal,
+    modalContent,
+    selected_LIST,
+  } = props;
 
   const [managed_VOCAB, SET_managedVocab] = useState(null);
   // const [managed_VOCAB, SET_managedVocab] = useState({
@@ -120,7 +128,7 @@ export default function ManageVocab_MODAL(props: ManageVocabModal_PROPS) {
     const populate = () => {
       SET_managedVocab({
         id: modalContent.vocab ? modalContent.vocab?.id : null,
-        list: modalContent.list ? modalContent.list : null,
+        list: modalContent.list ? modalContent.list : selected_LIST,
         difficulty: modalContent.vocab?.difficulty
           ? modalContent.vocab.difficulty
           : 3,
@@ -145,6 +153,13 @@ export default function ManageVocab_MODAL(props: ManageVocabModal_PROPS) {
 
   const [SHOW_selectListModal, TOGGLE_selectListModal] = useToggle(false);
   const [SHOW_selectLangModal, TOGGLE_selectLangModal] = useToggle(false);
+  const [SHOW_trTextModal, TOGGLE_trTextModal] = useToggle(false);
+  const [trTextModal_CONTENT, SET_trTextModalContent] = useState({
+    labelText: "",
+    labelIcon: null,
+    text: "",
+    lang_id: "",
+  });
 
   function EDIT_translationText({
     lang_id,
@@ -165,27 +180,42 @@ export default function ManageVocab_MODAL(props: ManageVocabModal_PROPS) {
     }));
   }
 
-  const [text, SET_text] = useState("");
+  function HANDLE_trTextModalText({
+    text,
+    action,
+    lang_id,
+  }: {
+    text: string;
+    action: "open" | "submit" | "cancel" | "updateText";
+    lang_id: string;
+  }) {
+    console.log(lang_id);
 
-  console.log(text);
+    if (action === "submit" && lang_id) {
+      EDIT_translationText({ lang_id, newText: text });
+      SET_trTextModalContent((prev) => ({ ...prev, text: "" }));
+      TOGGLE_trTextModal();
+    }
+    if (text && action === "updateText") {
+      SET_trTextModalContent((prev) => ({ ...prev, text: text }));
+    }
+    if (action === "cancel") {
+      SET_trTextModalContent((prev) => ({ ...prev, text: "" }));
+      TOGGLE_trTextModal();
+    }
+    if (action === "open" && lang_id) {
+      SET_trTextModalContent({
+        text:
+          managed_VOCAB?.translations?.find((t) => t.lang_id === lang_id)
+            ?.text || "",
+        lang_id,
+        labelIcon: "",
+        labelText: "",
+      });
 
-  const [box, SET_box] = useState("");
-  const [counter, SET_counter] = useState(5);
-
-  const x = [];
-  for (let i = 0; i < counter; i++) {
-    x.push(<Text style={{ color: "red" }}>A</Text>);
+      TOGGLE_trTextModal();
+    }
   }
-
-  function letter() {
-    return <Text style={{ color: "red" }}>A</Text>;
-  }
-
-  function test() {
-    SET_counter((prev) => prev + 1);
-    return <Text>{}</Text>;
-  }
-  const _editor = React.createRef();
 
   return (
     <Modal
@@ -218,29 +248,25 @@ export default function ManageVocab_MODAL(props: ManageVocabModal_PROPS) {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
         >
-          {/* <Styled_TEXT>Vocab id - {managed_VOCAB?.id}</Styled_TEXT>*/}
-          {/* <Styled_TEXT>
-            Vocab desc -<Styled_TEXT style={{ color: "red" }}>ss</Styled_TEXT>
-          </Styled_TEXT> */}
-
-          {/* <SimpleRichTextEditor /> */}
-
-          <HighlightableTextInput />
-
           {managed_VOCAB?.translations.map((tr: Translation_MODEL) => {
-            const lang = languages[tr.lang_id];
+            const lang = languages[tr?.lang_id];
 
             return (
               <Input_WRAP
                 key={lang.id}
-                labelIcon={<ICON_flag lang={tr.lang_id} />}
+                labelIcon={<ICON_flag lang={tr?.lang_id} />}
                 label={`${lang?.lang?.en} translation *`}
                 styles={{ padding: 20 }}
               >
+                <Btn
+                  text="oepn"
+                  onPress={() =>
+                    HANDLE_trTextModalText({ action: "open", lang_id: lang.id })
+                  }
+                />
                 <StyledTextInput
                   multiline={true}
                   value={tr.text}
-                  // value={<Styled_TEXT>hello </Styled_TEXT>}
                   SET_value={(val: string) => {
                     EDIT_translationText({
                       lang_id: tr.lang_id,
@@ -423,6 +449,74 @@ export default function ManageVocab_MODAL(props: ManageVocabModal_PROPS) {
             HANDLE_lang,
           }}
         /> */}
+        <Simple_MODAL
+          {...{
+            title: "Create a list",
+
+            IS_open: SHOW_trTextModal,
+            toggle: TOGGLE_trTextModal,
+            btnLeft: (
+              <Btn
+                text="Cancel"
+                onPress={() => HANDLE_trTextModalText({ action: "cancel" })}
+                type="simple"
+              />
+            ),
+            btnRight: (
+              <Btn
+                text="Save translation"
+                onPress={() =>
+                  HANDLE_trTextModalText({
+                    action: "submit",
+                    lang_id: trTextModal_CONTENT.lang_id,
+                    text: trTextModal_CONTENT.text,
+                  })
+                }
+                type="action"
+                style={{ flex: 1 }}
+              />
+            ),
+          }}
+        >
+          <Input_WRAP
+            labelIcon={<ICON_flag lang={trTextModal_CONTENT?.lang_id} />}
+            label={`${trTextModal_CONTENT.lang_id} translation *`}
+            styles={{ padding: 20 }}
+          >
+            <StyledTextInput
+              multiline={true}
+              value={trTextModal_CONTENT.text}
+              SET_value={(val: string) => {
+                HANDLE_trTextModalText({ action: "updateText", text: val });
+              }}
+              placeholder="Your vocab..."
+            />
+            {/* <Input_WRAP
+                key={lang.id}
+                labelIcon={<ICON_flag lang={tr.lang_id} />}
+                label={`${lang?.lang?.en} translation *`}
+                styles={{ padding: 20 }}
+              >
+                <Btn
+                  text="oepn"
+                  onPress={() =>
+                    HANDLE_trTextModalText({ action: "open", lang_id: lang.id })
+                  }
+                />
+                <StyledTextInput
+                  multiline={true}
+                  value={tr.text}
+                  SET_value={(val: string) => {
+                    EDIT_translationText({
+                      lang_id: tr.lang_id,
+                      newText: val,
+                    });
+                  }}
+                  placeholder="Your vocab in English..."
+                />
+              </Input_WRAP> */}
+          </Input_WRAP>
+        </Simple_MODAL>
       </SafeAreaView>
     </Modal>
   );

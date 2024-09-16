@@ -28,7 +28,7 @@ export interface VocabFilter_PROPS {
 }
 
 const FETCH_vocabs = (props: VocabFilter_PROPS) => {
-  // return Vocabs_DB.query(Q.where("description", "Dummy desc")).observe();
+  // return Vocabs_DB.query().observe();
 
   const { filter, sort } = props;
 

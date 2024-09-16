@@ -1,70 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   TextInput,
   Text,
-  Modal,
-  Pressable,
   Button,
-  ScrollView,
   StyleSheet,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
+  ScrollView,
 } from "react-native";
 import { MyColors } from "../constants/MyColors";
 
 const HighlightableTextInput: React.FC = () => {
   const [text, setText] = useState<string>(""); // Main input text
   const [highlights, setHighlights] = useState<number[]>([]); // Array of highlighted character indexes
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false); // Modal visibility
-  const [tempHighlights, setTempHighlights] = useState<number[]>([]); // Temporary highlights in modal
+  const inputRef = useRef<TextInput>(null);
 
+  // Handle text change
   const handleTextChange = (newText: string) => {
     const oldText = text;
     const oldLength = oldText.length;
     const newLength = newText.length;
 
-    // Update the main text
+    // Update the main text immediately
     setText(newText);
 
-    // Calculate the differences between old and new texts
+    // Only proceed if there's any change to process
+    if (oldText === newText) return;
+
+    // Calculate changes between oldText and newText
     const changes = calculateTextChanges(oldText, newText);
 
-    // Adjust highlights based on the changes
-    const updatedHighlights = highlights.map((index) => {
-      if (index >= newLength) {
-        // Highlight is beyond the new text length, remove it
-        return null;
-      }
+    // If no changes, return early
+    if (changes.length === 0) return;
 
-      // Adjust highlights based on detected changes
+    // Track highlights only in the affected regions
+    const updatedHighlights: number[] = [];
+
+    // Iterate through the old highlights and adjust them based on the changes
+    for (const index of highlights) {
       let adjustedIndex = index;
 
-      // Shift highlights according to the calculated changes
       changes.forEach(({ type, position, count }) => {
         if (type === "add" && position <= adjustedIndex) {
-          // Characters were added before the highlight, shift highlight index
-          adjustedIndex += count;
-        } else if (type === "remove" && position < adjustedIndex) {
-          // Characters were removed before the highlight, shift highlight index
-          adjustedIndex -= Math.min(count, adjustedIndex - position);
+          adjustedIndex += count; // Shift right
+        } else if (type === "remove" && position <= adjustedIndex) {
+          adjustedIndex = Math.max(0, adjustedIndex - count); // Shift left or remove
         }
       });
 
-      return adjustedIndex;
-    });
+      // Only include valid indices
+      if (adjustedIndex < newLength) {
+        updatedHighlights.push(adjustedIndex);
+      }
+    }
 
-    // Remove duplicates and filter out invalid highlight indices
-    const uniqueHighlights = Array.from(new Set(updatedHighlights)).filter(
-      (index) => index !== null && index < newLength
-    ) as number[];
-
-    // Set the updated highlights
-    setHighlights(uniqueHighlights);
+    // Remove duplicates and set updated highlights
+    setHighlights([...new Set(updatedHighlights)]);
   };
 
-  // Helper function to calculate text changes
+  // Optimize the text difference algorithm
   const calculateTextChanges = (oldText: string, newText: string) => {
     const changes: {
       type: "add" | "remove";
@@ -81,14 +74,13 @@ const HighlightableTextInput: React.FC = () => {
         newPos < newText.length &&
         oldText[oldPos] === newText[newPos]
       ) {
-        // Characters are the same, move forward
         oldPos++;
         newPos++;
       } else if (
         newPos < newText.length &&
         (oldPos >= oldText.length || oldText[oldPos] !== newText[newPos])
       ) {
-        // Character added in new text
+        // Characters added in newText
         const start = newPos;
         while (
           newPos < newText.length &&
@@ -101,7 +93,7 @@ const HighlightableTextInput: React.FC = () => {
         oldPos < oldText.length &&
         (newPos >= newText.length || oldText[oldPos] !== newText[newPos])
       ) {
-        // Character removed from old text
+        // Characters removed from oldText
         const start = oldPos;
         while (
           oldPos < oldText.length &&
@@ -120,31 +112,10 @@ const HighlightableTextInput: React.FC = () => {
     return changes;
   };
 
-  console.log(highlights);
-
-  // Toggle highlights for each letter in modal
-  const toggleHighlight = (index: number) => {
-    setTempHighlights(
-      (prev) =>
-        prev.includes(index)
-          ? prev.filter((i) => i !== index) // Remove highlight
-          : [...prev, index] // Add highlight
-    );
-  };
-
-  // Save highlights from modal to main input
-  const saveHighlights = () => {
-    setHighlights(tempHighlights);
-    setIsModalVisible(false);
-  };
-
-  // Render text with highlights applied
+  // Function to render highlighted text
   const renderHighlightedText = () => {
-    if (!text) return null;
-
     return text.split("").map((char, index) => {
       const isHighlighted = highlights.includes(index);
-
       return (
         <Text
           key={index}
@@ -161,56 +132,28 @@ const HighlightableTextInput: React.FC = () => {
     });
   };
 
-  // Render the modal with individual letter boxes
-  const renderModalContent = () => {
-    return (
-      <ScrollView contentContainerStyle={styles.modalContent}>
-        {text.split("").map((char, index) => (
-          <Pressable
-            key={index}
-            style={[
-              styles.letterBox,
-              tempHighlights.includes(index) ? styles.highlighted : null,
-            ]}
-            onPress={() => toggleHighlight(index)}
-          >
-            <Text>{char}</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-    );
-  };
-
   return (
     <View style={styles.container}>
+      {/* Highlighted text layer */}
+      <ScrollView style={styles.textLayer}>
+        <Text style={[styles.textInput, { position: "absolute" }]}>
+          {renderHighlightedText()}
+        </Text>
+      </ScrollView>
+
+      {/* User text input layer */}
       <TextInput
-        style={[styles.textInput, { fontSize: 18, color: MyColors.btn_3 }]}
+        ref={inputRef}
+        style={[styles.textInput, styles.inputLayer]}
+        value={text}
         onChangeText={handleTextChange}
         multiline
-      >
-        {renderHighlightedText()}
-      </TextInput>
+      />
 
       <Button
-        title="Set Highlights"
-        onPress={() => {
-          setTempHighlights(highlights); // Load current highlights into modal
-          setIsModalVisible(true);
-        }}
+        title="Clear Highlights"
+        onPress={() => setHighlights([])} // Clear all highlights
       />
-      <Button title="Clear Highlights" onPress={() => setHighlights([])} />
-
-      {/* Modal for letter highlighting */}
-      <Modal visible={isModalVisible} animationType="slide">
-        <View style={styles.modalContainer}>
-          {renderModalContent()}
-
-          <View style={styles.modalButtons}>
-            <Button title="Cancel" onPress={() => setIsModalVisible(false)} />
-            <Button title="Save Highlights" onPress={saveHighlights} />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
@@ -219,46 +162,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    position: "relative",
+    height: 300,
   },
   textInput: {
-    height: 100,
-    borderColor: "#ccc",
-    borderWidth: 1,
+    fontSize: 18,
+    lineHeight: 24,
+    color: MyColors.btn_3,
+  },
+  textLayer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
     padding: 10,
-
-    textAlignVertical: "top",
   },
-  textDisplay: {
-    height: 100,
-    borderColor: "#ccc",
-    borderWidth: 1,
+  inputLayer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 2,
     padding: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "center",
-  },
-  modalContent: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  letterBox: {
-    width: 30,
-    height: 40,
-    margin: 2,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  highlighted: {
-    backgroundColor: "yellow",
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
+    color: "transparent", // Make the text input itself invisible
   },
 });
 

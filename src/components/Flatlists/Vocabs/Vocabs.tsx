@@ -63,6 +63,7 @@ const enhance = withObservables(
   ["filters"],
   ({ filters }: { filters: VocabFilter_PROPS }) => ({
     vocabs: FETCH_vocabs(filters),
+    // vocabs: Vocabs_DB.query(),
     // vocabs: Vocabs_DB,
     // vocabs,
   })

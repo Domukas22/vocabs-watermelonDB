@@ -44,12 +44,6 @@ function _Vocab({
 
   function HANDLE_editDifficulty() {}
 
-  // console.log(languages[translations?.[0].lang_id].lang);
-  // console.log(translations?.[0]?.lang_id);
-  // console.log(languages["en"]);
-
-  // TOGGLE_vocabModal(vocab)
-
   return (
     <View
       style={[
