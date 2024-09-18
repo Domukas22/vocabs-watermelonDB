@@ -7,6 +7,7 @@ import { Styled_TEXT } from "../Styled_TEXT";
 import Btn from "../btn/btn";
 import { MyColors } from "@/src/constants/MyColors";
 import React from "react";
+import Label from "../Label/Label";
 
 interface _Input_WRAP {
   label: string;
@@ -37,10 +38,7 @@ export default function Input_WRAP({
         { paddingBottom: 20 },
       ]}
     >
-      <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-        {labelIcon && labelIcon}
-        <Styled_TEXT type="label">{label}</Styled_TEXT>
-      </View>
+      <Label labelIcon={labelIcon} labelText={label} />
       <View
         style={[
           row ? { flexDirection: "row" } : { flexDirection: "column" },

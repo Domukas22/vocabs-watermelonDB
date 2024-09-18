@@ -22,15 +22,14 @@ import { List_MODEL } from "@/src/db/models";
 import { Lists_DB } from "@/src/db";
 
 interface SelectListModal_PROPS {
-  SHOW_selectListModal: boolean;
-  TOGGLE_selectListModal: () => void;
-  list: List_MODEL;
-  SET_list: (list: List_MODEL) => void;
+  SHOW_modal: boolean;
+  TOGGLE_modal: () => void;
+  currentList_ID: string;
+  SELECT_list: (list: List_MODEL) => void;
 }
 
 export default function SelectList_MODAL(props: SelectListModal_PROPS) {
-  const { SHOW_selectListModal, TOGGLE_selectListModal, list, SET_list } =
-    props;
+  const { SHOW_modal, TOGGLE_modal, currentList_ID, SELECT_list } = props;
 
   const [modal_LISTS, SET_modalLists] = useState<List_MODEL[] | null>(null);
 
@@ -57,7 +56,7 @@ export default function SelectList_MODAL(props: SelectListModal_PROPS) {
     <Modal
       animationType="slide"
       transparent={true}
-      visible={SHOW_selectListModal}
+      visible={SHOW_modal}
       style={{}}
     >
       <SafeAreaView
@@ -74,7 +73,7 @@ export default function SelectList_MODAL(props: SelectListModal_PROPS) {
             <Btn
               type="seethrough"
               iconLeft={<ICON_X big={true} rotate={true} />}
-              onPress={TOGGLE_selectListModal}
+              onPress={TOGGLE_modal}
               style={{ borderRadius: 100 }}
             />
           }
@@ -112,10 +111,10 @@ export default function SelectList_MODAL(props: SelectListModal_PROPS) {
               <Btn
                 text={item.name}
                 onPress={() => {
-                  SET_list(item);
+                  SELECT_list(item);
                   SET_search("");
                 }}
-                type={item.id === list.id ? "active" : "simple"}
+                type={item.id === currentList_ID ? "active" : "simple"}
                 style={{ flex: 1, marginBottom: 8 }}
                 text_STYLES={{ flex: 1 }}
               />
@@ -131,7 +130,7 @@ export default function SelectList_MODAL(props: SelectListModal_PROPS) {
           btnLeft={
             <Btn
               text="Done"
-              onPress={TOGGLE_selectListModal}
+              onPress={TOGGLE_modal}
               type="simple"
               style={{ flex: 1 }}
             />

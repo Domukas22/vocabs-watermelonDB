@@ -6,6 +6,7 @@ import React from "react";
 import db, { Lists_DB, Translations_DB, Vocabs_DB } from "../..";
 
 import { List_MODEL, Translation_MODEL, Vocab_MODEL } from "../../models";
+import { Q } from "@nozbe/watermelondb";
 
 export type UpdateVocab_PROPS = {
   list: List_MODEL;
@@ -19,6 +20,7 @@ export type UpdateVocab_PROPS = {
   translations: {
     lang_id: string;
     text: string;
+    highlights: string;
   }[];
 };
 
@@ -39,20 +41,40 @@ export default async function UPDATE_vocab(incomingVocab: UpdateVocab_PROPS) {
       vocab.is_publicly_visible = incomingVocab.is_publicly_visible || false;
     });
 
-    // Create translations and link them to the new vocab
-    // for (const incomingTR of incomingVocab.translations) {
-    //   await Translations_DB.create((tr) => {
-    //     tr.vocab.set(newVocab); // Link the translation to the vocab
-    //     tr.lang_id = incomingTR.lang_id;
-    //     tr.text = incomingTR.text;
-    //   });
-    // }
+    const newTRs = incomingVocab.translations;
+    const oldTRS = (await targetVocab.translations.fetch()) || "";
+
+    // loop through old vocabs
+    oldTRS?.forEach(async (oldTR) => {
+      // if an old vocab is not inluded in the new list --> delete
+      if (!newTRs.some((newTR) => newTR.lang_id === oldTR.lang_id)) {
+        await oldTR.markAsDeleted();
+      }
+    });
+
+    // loop through new vocabs
+    newTRs?.forEach(async (newTR) => {
+      // if a new vocab is not inluded in the old list --> create
+      if (!oldTRS.some((oldTR) => oldTR.lang_id === newTR.lang_id)) {
+        await Translations_DB.create((tr) => {
+          tr.vocab.set(targetVocab); // Link the translation to the vocab
+          tr.lang_id = newTR.lang_id;
+          tr.text = newTR.text;
+          tr.highlights = newTR.highlights;
+        });
+      }
+      // if a new vocab is already in the old vocabs --> update
+      if (oldTRS.some((oldTR) => oldTR.lang_id === newTR.lang_id)) {
+        const targetTR = oldTRS.find(
+          (oldTR) => oldTR.lang_id === newTR.lang_id
+        );
+        if (targetTR) {
+          await targetTR.update((tr) => {
+            tr.text = newTR.text;
+            tr.highlights = newTR.highlights;
+          });
+        }
+      }
+    });
   });
 }
-
-// update all vocab properties
-
-// current translation / new translations
-// if current is missing in new, delete current
-// if new is missing in current, create new
-// if new is in current, upadate current

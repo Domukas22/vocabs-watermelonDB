@@ -39,16 +39,7 @@ export default appSchema({
         { name: "vocab_id", type: "string", isIndexed: true },
         { name: "lang_id", type: "string", isIndexed: true },
         { name: "text", type: "string" },
-        { name: "created_at", type: "number" },
-        { name: "updated_at", type: "number" },
-      ],
-    }),
-    tableSchema({
-      name: "highlights",
-      columns: [
-        { name: "translation_id", type: "string", isIndexed: true },
-        { name: "start_index", type: "number" },
-        { name: "end_index", type: "number" },
+        { name: "highlights", type: "string" },
         { name: "created_at", type: "number" },
         { name: "updated_at", type: "number" },
       ],

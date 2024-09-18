@@ -2,7 +2,11 @@
 //
 //
 
-import { List_MODEL, Vocab_MODEL } from "@/src/db/models";
+import {
+  List_MODEL,
+  TranslationCreation_PROPS,
+  Vocab_MODEL,
+} from "@/src/db/models";
 import MyList_BTN from "../../MyList_BTN/MyList_BTN";
 import Styled_FLATLIST from "../Styled_FLATLIST/Styled_FLATLIST";
 import React, { useEffect, useState } from "react";
@@ -21,7 +25,13 @@ import FETCH_vocabs, {
 
 interface SingleListVocabs_PROPS {
   selected_LIST: List_MODEL;
-  TOGGLE_vocabModal: (vocab: Vocab_MODEL) => void;
+  EDIT_vocab: ({
+    vocab,
+    translations,
+  }: {
+    vocab: Vocab_MODEL;
+    translations: TranslationCreation_PROPS[];
+  }) => void;
   displayProps: {
     image: boolean;
     listName: boolean;
@@ -35,7 +45,7 @@ interface SingleListVocabs_PROPS {
 // Define the component
 function _Vocabs({
   displayProps,
-  TOGGLE_vocabModal,
+  EDIT_vocab,
   vocabs, // Use observed vocabs her
   selected_LIST,
 }: SingleListVocabs_PROPS) {
@@ -47,7 +57,7 @@ function _Vocabs({
           <Vocab
             vocab={item}
             displayProps={displayProps}
-            TOGGLE_vocabModal={TOGGLE_vocabModal}
+            EDIT_vocab={EDIT_vocab}
             selected_LIST={selected_LIST}
           />
           {/* <Styled_TEXT>list id is: {item.list}</Styled_TEXT> */}

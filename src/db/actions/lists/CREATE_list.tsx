@@ -9,6 +9,8 @@ import { List_MODEL } from "../../models";
 import { user_id } from "@/src/constants/globalTemporary";
 
 export default async function CREATE_list({ name }: { name: string }) {
+  console.log("CREATE");
+
   await db.write(async () => {
     // const user = await Users_DB.query(Q.where("name", "Domas"));
     const user = await Users_DB.find(user_id);

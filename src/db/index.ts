@@ -11,7 +11,6 @@ import migrations from "./migrations";
 // import Post from './model/Post' // ⬅️ You'll import your Models here
 
 import {
-  Highlights_MODEL,
   List_MODEL,
   Translation_MODEL,
   User_MODEL,
@@ -38,13 +37,7 @@ const adapter = new SQLiteAdapter({
 // Then, make a Watermelon database from it!
 const db = new Database({
   adapter,
-  modelClasses: [
-    User_MODEL,
-    List_MODEL,
-    Vocab_MODEL,
-    Translation_MODEL,
-    Highlights_MODEL,
-  ],
+  modelClasses: [User_MODEL, List_MODEL, Vocab_MODEL, Translation_MODEL],
 });
 
 export default db;
@@ -52,5 +45,4 @@ export default db;
 export const Users_DB = db.get<User_MODEL>("users"),
   Lists_DB = db.get<List_MODEL>("lists"),
   Vocabs_DB = db.get<Vocab_MODEL>("vocabs"),
-  Translations_DB = db.get<Translation_MODEL>("translations"),
-  Highlights_DB = db.get<Highlights_MODEL>("highlights");
+  Translations_DB = db.get<Translation_MODEL>("translations");

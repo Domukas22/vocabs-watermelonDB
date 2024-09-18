@@ -112,29 +112,18 @@ export class Translation_MODEL extends Model {
 
   static associations: Associations = {
     vocab: { type: "belongs_to", key: "vocab_id" },
-    highlights: { type: "has_many", foreignKey: "translation_id" },
   };
-  @children("highlights") highlights!: Highlights_MODEL[];
 
   @immutableRelation("vocabs", "vocab_id") vocab!: Vocab_MODEL;
   @field("lang_id") lang_id!: string;
   @text("text") text!: string;
+  @field("highlights") highlights!: string;
   @readonly @date("created_at") created_at!: number;
   @readonly @date("updated_at") updated_at!: number;
 }
 // ---------------------------------------------------------------
-
-// Highlights Model
-export class Highlights_MODEL extends Model {
-  static table = "highlights";
-  static associations: Associations = {
-    translation: { type: "belongs_to", key: "translation_id" },
-  };
-
-  @immutableRelation("translation", "translation_id")
-  translation!: Translation_MODEL;
-  @field("start_index") start_index!: number;
-  @field("end_index") end_index!: number;
-  @readonly @date("created_at") created_at!: number;
-  @readonly @date("updated_at") updated_at!: number;
+export interface TranslationCreation_PROPS {
+  lang_id: string;
+  text: string;
+  highlights: string;
 }

@@ -40,7 +40,12 @@ import Styled_FLATLIST from "@/src/components/Flatlists/Styled_FLATLIST/Styled_F
 import { USE_selectedList } from "@/src/context/SelectedList_CONTEXT";
 import ListOfVocabs from "@/src/components/Flatlists/Vocabs/Vocabs";
 import db, { Vocabs_DB } from "@/src/db";
-import { List_MODEL, Translation_MODEL, Vocab_MODEL } from "@/src/db/models";
+import {
+  List_MODEL,
+  Translation_MODEL,
+  TranslationCreation_PROPS,
+  Vocab_MODEL,
+} from "@/src/db/models";
 import { Q } from "@nozbe/watermelondb";
 import FETCH_vocabs from "@/src/db/actions/vocabs/FETCH_vocabs";
 import { useToggle } from "@/src/hooks/useToggle/useToggle";
@@ -48,7 +53,7 @@ import { useToggle } from "@/src/hooks/useToggle/useToggle";
 export default function Home_SCREEN() {
   const { selected_LIST, SET_selectedList } = USE_selectedList();
   const [SHOW_displaySettingsModal, TOGGLE_displaySettings] = useToggle(false);
-  const [SHOW_manageVocabModal, TOGGLE_manageVocab] = useToggle(false);
+  const [SHOW_vocabModal, TOGGLE_vocabModal] = useToggle(false);
 
   const [displayProps, SET_displayProps] = useState({
     search: "",
@@ -60,40 +65,53 @@ export default function Home_SCREEN() {
     difficulty: true,
   });
 
-  const [modalContent, SET_modalContent] = useState(
-    {
-      vocab: null as Vocab_MODEL | null,
-      list: null as List_MODEL | null,
-      translations: null as { list_id: string; text: string } | null,
-    } || null
-  );
+  const [toEdit_VOCAB, SET_toEditVocab] = useState<Vocab_MODEL | null>(null);
+  const [toEdit_TRANSLATIONS, SET_toEditTranslations] = useState<
+    TranslationCreation_PROPS[] | null
+  >(null);
 
-  function HANLDE_modalContent(
-    vocab?: Vocab_MODEL,
-    list?: List_MODEL,
-    translations?: { list_id: string; text: string }
-  ) {
-    if (SHOW_manageVocabModal)
-      SET_modalContent({ vocab: null, list: null, translations: null });
-    if (
-      !SHOW_manageVocabModal &&
-      !modalContent.vocab &&
-      !modalContent.list &&
-      !modalContent.translations &&
-      vocab &&
-      list &&
-      translations
-    )
-      SET_modalContent({ vocab, list, translations });
+  function CLOSE_vocabModal() {
+    SET_toEditVocab(null);
+    SET_toEditTranslations(null);
+    TOGGLE_vocabModal();
   }
+  function EDIT_vocab({
+    vocab,
+    translations,
+  }: {
+    vocab?: Vocab_MODEL;
+    translations?: TranslationCreation_PROPS[];
+  }) {
+    if (vocab && translations) {
+      SET_toEditVocab(vocab);
+      SET_toEditTranslations(translations);
+      TOGGLE_vocabModal();
+    }
+  }
+  function HANDLE_vocabModal({
+    clear = false,
+    vocab,
+    translations,
+  }: {
+    clear?: boolean;
+    vocab?: Vocab_MODEL;
+    translations?: TranslationCreation_PROPS[];
+  }) {
+    if (!clear && vocab && translations) {
+      const trs = translations?.map((tr) => ({
+        lang_id: tr.lang_id,
+        text: tr.text || "",
+        highlights: tr.highlights || "",
+      }));
 
-  function TOGGLE_vocabModal(
-    vocab?: Vocab_MODEL,
-    list?: List_MODEL,
-    translations?: { list_id: string; text: string }
-  ) {
-    HANLDE_modalContent(vocab, list, translations);
-    TOGGLE_manageVocab();
+      SET_toEditVocab(vocab);
+      SET_toEditTranslations(trs);
+      TOGGLE_vocabModal();
+    } else if (clear) {
+      SET_toEditVocab(null);
+      SET_toEditTranslations(null);
+      TOGGLE_vocabModal();
+    }
   }
 
   async function DELETE_allVocabs() {
@@ -148,7 +166,7 @@ export default function Home_SCREEN() {
           type="simple"
           iconLeft={<ICON_X big={true} color="primary" />}
           style={{ borderRadius: 100 }}
-          onPress={() => TOGGLE_vocabModal()}
+          onPress={() => HANDLE_vocabModal({ clear: true })}
         />
       </Subnav>
 
@@ -159,7 +177,7 @@ export default function Home_SCREEN() {
             list_id: selected_LIST.id,
           },
         }}
-        TOGGLE_vocabModal={TOGGLE_vocabModal}
+        EDIT_vocab={HANDLE_vocabModal}
         displayProps={displayProps}
       />
 
@@ -183,12 +201,11 @@ export default function Home_SCREEN() {
       /> */}
 
       <ManageVocab_MODAL
-        {...{
-          SHOW_manageVocabModal,
-          TOGGLE_vocabModal,
-          selected_LIST,
-          modalContent,
-        }}
+        SHOW_modal={SHOW_vocabModal}
+        TOGGLE_modal={() => HANDLE_vocabModal({ clear: true })}
+        toEdit_VOCAB={toEdit_VOCAB}
+        toEdit_TRANSLATIONS={toEdit_TRANSLATIONS}
+        selected_LIST={selected_LIST}
       />
       <Btn
         text="Delelte all"

@@ -8,7 +8,12 @@ import { ICON_difficultyDot, ICON_flag } from "../icons/icons";
 import { useState } from "react";
 import Btn from "../btn/btn";
 import { Styled_TEXT } from "../Styled_TEXT";
-import { List_MODEL, Translation_MODEL, Vocab_MODEL } from "@/src/db/models";
+import {
+  List_MODEL,
+  Translation_MODEL,
+  TranslationCreation_PROPS,
+  Vocab_MODEL,
+} from "@/src/db/models";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { useToggle } from "@/src/hooks/useToggle/useToggle";
 import languages from "@/src/constants/languages";
@@ -24,7 +29,13 @@ interface VocabProps {
     flags: boolean;
     difficulty: boolean;
   };
-  TOGGLE_vocabModal: (vocab: Vocab_MODEL, list: List_MODEL) => void;
+  EDIT_vocab: ({
+    vocab,
+    translations,
+  }: {
+    vocab: Vocab_MODEL;
+    translations: TranslationCreation_PROPS[];
+  }) => void;
   selected_LIST: List_MODEL;
 }
 
@@ -34,7 +45,7 @@ function _Vocab({
   translations,
   displayProps,
   list,
-  TOGGLE_vocabModal,
+  EDIT_vocab,
   selected_LIST,
 }: VocabProps) {
   const [open, TOGGLE_vocab] = useToggle(false);
@@ -120,6 +131,7 @@ function _Vocab({
                 style={{ paddingVertical: 16, flex: 1 }}
               >
                 {tr.text}
+                {` // h: ${tr.highlights}`}
               </Styled_TEXT>
             </View>
           ))}
@@ -131,7 +143,7 @@ function _Vocab({
             <Btn
               type="simple"
               style={{ flex: 1 }}
-              onPress={() => TOGGLE_vocabModal(vocab, list, translations)}
+              onPress={() => EDIT_vocab({ vocab, translations })}
               text="Edit vocab"
               text_STYLES={{ textAlign: "center" }}
             />

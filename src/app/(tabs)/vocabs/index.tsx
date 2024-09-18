@@ -4,28 +4,23 @@
 
 import Btn from "@/src/components/btn/btn";
 import Header from "@/src/components/Header/Header";
-import {
-  ICON_3dots,
-  ICON_arrowBack,
-  ICON_X,
-} from "@/src/components/icons/icons";
+import { ICON_X } from "@/src/components/icons/icons";
 import MainScreen_VIEW from "@/src/components/mainScreen_VIEW/mainScreen_VIEW";
-import Styled_FLATLIST from "@/src/components/Flatlists/Styled_FLATLIST/Styled_FLATLIST";
+
 import { Styled_TEXT } from "@/src/components/Styled_TEXT";
 import StyledTextInput from "@/src/components/StyledTextInput/StyledTextInput";
-import MyList_BTN from "@/src/components/MyList_BTN/MyList_BTN";
-import db, { Lists_DB, Users_DB } from "@/src/db";
+
+import db, { Lists_DB } from "@/src/db";
+
 import { List_MODEL } from "@/src/db/models";
 
-import { Link, router } from "expo-router";
-import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { router } from "expo-router";
+import { useState } from "react";
+import { StyleSheet } from "react-native";
 import MyVocabLists from "@/src/components/Flatlists/MyVocabLists/MyVocabLists";
 import Simple_MODAL from "@/src/components/Modals/Simple_MODAL/Simple_MODAL";
 import { USE_selectedList } from "@/src/context/SelectedList_CONTEXT";
 import CREATE_list from "@/src/db/actions/lists/CREATE_list";
-import { Q } from "@nozbe/watermelondb";
-import FETCH_myVocabLists from "@/src/db/actions/lists/FETCH_lists";
 
 export default function Profile_SCREEN() {
   const { selected_LIST, SET_selectedList } = USE_selectedList();
