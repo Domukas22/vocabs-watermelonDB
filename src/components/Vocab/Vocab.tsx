@@ -4,8 +4,8 @@
 
 import { MyColors } from "@/src/constants/MyColors";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { ICON_difficultyDot, ICON_flag } from "../icons/icons";
-import { useState } from "react";
+import { ICON_difficultyDot, ICON_flag, ICON_X } from "../icons/icons";
+import { useEffect, useMemo, useState } from "react";
 import Btn from "../btn/btn";
 import { Styled_TEXT } from "../Styled_TEXT";
 import {
@@ -17,6 +17,9 @@ import {
 import { withObservables } from "@nozbe/watermelondb/react";
 import { useToggle } from "@/src/hooks/useToggle/useToggle";
 import languages from "@/src/constants/languages";
+import UPDATE_vocabDifficulty from "@/src/db/actions/vocabs/UPDATE_vocabDifficulty";
+import RENDER_textWithHighlights from "../RENDER_textWithHighlights/RENDER_textWithHighlights";
+import Vocab_FRONT from "./components/Vocab_FRONT/Vocab_FRONT";
 
 interface VocabProps {
   vocab: Vocab_MODEL;
@@ -28,6 +31,7 @@ interface VocabProps {
     desc: boolean;
     flags: boolean;
     difficulty: boolean;
+    frontLangId: string;
   };
   EDIT_vocab: ({
     vocab,
@@ -49,11 +53,20 @@ function _Vocab({
   selected_LIST,
 }: VocabProps) {
   const [open, TOGGLE_vocab] = useToggle(false);
-  const { image, listName, desc, flags, difficulty } = displayProps;
+  const [SHOW_difficultyEdits, TOGGLE_difficultyEdits] = useToggle(false);
+  const { image, listName, desc, flags, difficulty, frontLangId } =
+    displayProps;
 
-  function HANDLE_editVocab() {}
+  function HANDLE_editDifficulty(difficulty: 1 | 2 | 3) {
+    if (vocab.difficulty !== difficulty) {
+      UPDATE_vocabDifficulty({ vocab, difficulty });
+      TOGGLE_difficultyEdits();
+    }
+  }
 
-  function HANDLE_editDifficulty() {}
+  const frontText =
+    translations?.find((tr) => tr.lang_id === frontLangId)?.text ||
+    translations[0]?.text;
 
   return (
     <View
@@ -67,48 +80,23 @@ function _Vocab({
     >
       <View>
         {/* Image comes here */}
-        {!open && (
-          <View>
-            <Pressable
-              style={({ pressed }) => [
-                s.topPadding,
-                pressed
-                  ? { backgroundColor: MyColors.btn_3 }
-                  : { backgroundColor: MyColors.btn_2 }, // Pressed and non-pressed styles
-              ]}
-              onPress={TOGGLE_vocab}
-            >
-              <Styled_TEXT type="vocabTitle">{vocab.description}</Styled_TEXT>
 
-              {listName && (
-                <Styled_TEXT type="label_small">
-                  {selected_LIST.name}
-                </Styled_TEXT>
-              )}
-              {desc && (
-                <Styled_TEXT type="label_small">
-                  {vocab.description}
-                </Styled_TEXT>
-              )}
-              {(flags || difficulty) && (
-                <View style={s.topIconWrap}>
-                  {/* {flags &&
-                    content.translations.map((tr) => (
-                      <ICON_flag
-                        key={content.id + "/" + tr.lang}
-                        lang={tr.lang}
-                      />
-                    ))} */}
-                  <Styled_TEXT type="label_small">Flags</Styled_TEXT>
-                  {difficulty && (
-                    <ICON_difficultyDot difficulty={vocab.difficulty} />
-                  )}
-                </View>
-              )}
-            </Pressable>
-          </View>
-        )}
+        <Vocab_FRONT
+          visible={!open}
+          frontText={frontText}
+          listName={selected_LIST.name}
+          description={vocab.description}
+          difficulty={vocab.difficulty}
+          flags="flags"
+          SHOW_image={image}
+          SHOW_listName={listName}
+          SHOW_description={desc}
+          SHOW_difficulty={difficulty}
+          SHOW_flags={flags}
+          onPress={TOGGLE_vocab}
+        />
       </View>
+
       {open && (
         <View>
           {translations.map((tr, index) => (
@@ -130,8 +118,11 @@ function _Vocab({
                 type="vocabTitle"
                 style={{ paddingVertical: 16, flex: 1 }}
               >
-                {tr.text}
-                {` // h: ${tr.highlights}`}
+                <RENDER_textWithHighlights
+                  text={tr.text}
+                  highlights={tr.highlights}
+                  difficulty={vocab.difficulty}
+                />
               </Styled_TEXT>
             </View>
           ))}
@@ -139,24 +130,70 @@ function _Vocab({
             <Styled_TEXT type="label_small">{list.name}</Styled_TEXT>
             <Styled_TEXT type="label_small">{vocab.description}</Styled_TEXT>
           </View>
-          <View style={s.bottomBtn_WRAP}>
-            <Btn
-              type="simple"
-              style={{ flex: 1 }}
-              onPress={() => EDIT_vocab({ vocab, translations })}
-              text="Edit vocab"
-              text_STYLES={{ textAlign: "center" }}
-            />
+          <View
+            style={{
+              padding: 12,
+            }}
+          >
+            {!SHOW_difficultyEdits && (
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                <Btn
+                  type="simple"
+                  style={{ flex: 1 }}
+                  onPress={() => EDIT_vocab({ vocab, translations })}
+                  text="Edit vocab"
+                  text_STYLES={{ textAlign: "center" }}
+                />
 
-            <Btn type="simple" onPress={TOGGLE_vocab} text="Close" />
+                <Btn type="simple" onPress={TOGGLE_vocab} text="Close" />
 
-            <Btn
-              type="simple"
-              onPress={HANDLE_editDifficulty}
-              iconLeft={
-                <ICON_difficultyDot difficulty={vocab.difficulty} big={true} />
-              }
-            />
+                <Btn
+                  type="simple"
+                  onPress={TOGGLE_difficultyEdits}
+                  iconLeft={
+                    <ICON_difficultyDot
+                      difficulty={vocab.difficulty}
+                      big={true}
+                    />
+                  }
+                />
+              </View>
+            )}
+            {SHOW_difficultyEdits && (
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                <Btn
+                  type={
+                    vocab.difficulty === 1 ? "difficulty_1_active" : "simple"
+                  }
+                  style={{ flex: 1 }}
+                  onPress={() => HANDLE_editDifficulty(1)}
+                  iconLeft={<ICON_difficultyDot difficulty={1} big={true} />}
+                />
+
+                <Btn
+                  type={
+                    vocab.difficulty === 2 ? "difficulty_2_active" : "simple"
+                  }
+                  style={{ flex: 1 }}
+                  onPress={() => HANDLE_editDifficulty(2)}
+                  iconLeft={<ICON_difficultyDot difficulty={2} big={true} />}
+                />
+
+                <Btn
+                  type={
+                    vocab.difficulty === 3 ? "difficulty_3_active" : "simple"
+                  }
+                  style={{ flex: 1 }}
+                  onPress={() => HANDLE_editDifficulty(3)}
+                  iconLeft={<ICON_difficultyDot difficulty={3} big={true} />}
+                />
+                <Btn
+                  type="simple"
+                  onPress={TOGGLE_difficultyEdits}
+                  iconLeft={<ICON_X big={true} rotate={true} />}
+                />
+              </View>
+            )}
           </View>
         </View>
       )}
@@ -167,7 +204,8 @@ const enhance = withObservables(
   ["vocab"],
   ({ vocab }: { vocab: Vocab_MODEL }) => ({
     vocab,
-    translations: vocab.translations,
+
+    translations: vocab.translations, // why isnt it reloading when the translations update?
     list: vocab.list,
   })
 );
@@ -196,28 +234,6 @@ const s = StyleSheet.create({
     borderColor: MyColors.border_difficulty_1,
   },
 
-  vocab_TITLE: {
-    fontSize: 18,
-    color: MyColors.text_white,
-    fontWeight: "500",
-    paddingBottom: 2,
-  },
-  vocab_SUBTITLE: {
-    fontSize: 16,
-    color: MyColors.text_white_06,
-    fontWeight: "300",
-    paddingBottom: 2,
-  },
-  topPadding: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  topIconWrap: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 4,
-    marginTop: 4,
-  },
   bottomTr: {
     flexDirection: "row",
     minHeight: 60,
@@ -241,10 +257,5 @@ const s = StyleSheet.create({
     padding: 12,
     borderBottomWidth: 1,
     borderColor: MyColors.border_white_005,
-  },
-  bottomBtn_WRAP: {
-    flexDirection: "row",
-    padding: 12,
-    gap: 8,
   },
 });

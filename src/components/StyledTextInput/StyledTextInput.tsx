@@ -4,7 +4,7 @@
 
 import { MyColors } from "@/src/constants/MyColors";
 import { useFonts } from "expo-font";
-import { useState } from "react";
+import React, { Ref, useState } from "react";
 import { TextStyle } from "react-native";
 
 import {
@@ -21,6 +21,7 @@ type _TextInputProps = TextInputProps & {
   SET_value: React.Dispatch<React.SetStateAction<string>>;
   placeholder: string;
   multiline?: boolean;
+  _ref?: Ref<R_TextInput>;
 };
 
 export default function StyledTextInput({
@@ -29,6 +30,7 @@ export default function StyledTextInput({
   placeholder,
   multiline = false,
   style,
+  _ref,
 }: _TextInputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -43,6 +45,7 @@ export default function StyledTextInput({
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
       scrollEnabled={false}
+      ref={_ref && _ref}
     />
   );
 }

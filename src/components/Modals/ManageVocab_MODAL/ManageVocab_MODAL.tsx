@@ -121,7 +121,18 @@ export default function ManageVocab_MODAL(props: ManageVocabModal_PROPS) {
   }) {
     if (!translations) return;
     const newTRs = translations.map((tr) => {
-      if (tr.lang_id === lang_id) tr.text = newText;
+      if (tr.lang_id === lang_id) {
+        tr.text = newText;
+
+        const adjustedHighlights = tr.highlights
+          .split(",")
+          .filter(Boolean) // prevents [0] if the highlights string is empty
+          .map((index) => Number(index))
+          .filter((h) => h <= newText.length - 1) // delete highlights which don't fit into the text
+          .join(",");
+        tr.highlights = adjustedHighlights;
+      }
+
       return tr;
     });
     SET_translations(newTRs);

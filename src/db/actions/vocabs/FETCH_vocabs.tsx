@@ -20,9 +20,10 @@ export interface VocabFilter_PROPS {
     difficulties?: [1 | 2 | 3];
     is_public?: boolean;
     is_publicly_visible?: boolean;
+    search?: string;
   };
   sort?: {
-    type: "shuffle" | "byDifficulty" | "byDateCreated";
+    type: "shuffle" | "difficulty" | "date";
     direction?: "ascending" | "descending";
   };
 }
@@ -51,6 +52,14 @@ const FETCH_vocabs = (props: VocabFilter_PROPS) => {
     conditions.push(Q.where("id", filter.id));
   }
 
+  if (filter?.search) {
+    console.log("search now: ", filter.search);
+
+    conditions.push(
+      Q.where("description", Q.like(`${Q.sanitizeLikeString(filter.search)}%`))
+    );
+  }
+
   if (filter.has_image !== undefined) {
     const imageCondition = filter.has_image
       ? Q.where("image", Q.gt(5)) // Adjust the condition if needed based on your data requirements
@@ -59,7 +68,7 @@ const FETCH_vocabs = (props: VocabFilter_PROPS) => {
     conditions.push(imageCondition);
   }
 
-  if (filter.difficulties) {
+  if (filter.difficulties && filter.difficulties.length > 0) {
     conditions.push(Q.where("difficulty", Q.oneOf(filter.difficulties)));
   }
 
@@ -73,24 +82,27 @@ const FETCH_vocabs = (props: VocabFilter_PROPS) => {
 
   // Handle sorting
   switch (sort?.type) {
-    // case "shuffle":
-    //   query = query.sortBy(Q.random());
-    //   conditions.push(Q.where("is_public", filter.is_public));
-    //   break;
-    case "byDifficulty":
-      conditions.push(
-        Q.where("difficulty", sort.direction === "ascending" ? Q.asc : Q.desc)
+    case "shuffle":
+      // query = query.extend(
+      //   Q.sortBy("difficulty", sort.direction === "ascending" ? Q.asc : Q.desc)
+      // );
+      break;
+    case "difficulty":
+      query = query.extend(
+        Q.sortBy("difficulty", sort.direction === "ascending" ? Q.asc : Q.desc)
       );
       break;
-    case "byDateCreated":
-      conditions.push(
-        Q.where("date_created", sort.direction === "ascending" ? Q.asc : Q.desc)
+    case "date":
+      query = query.extend(
+        Q.sortBy("created_at", sort.direction === "ascending" ? Q.asc : Q.desc)
       );
+
       break;
   }
 
   // Combine all conditions with Q.and
   query = query.extend(Q.and(...conditions));
+
   return query.observe();
 };
 

@@ -12,6 +12,7 @@ import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Styled_TEXT } from "@/src/components/Styled_TEXT";
 import { MyColors } from "@/src/constants/MyColors";
+import RENDER_textWithHighlights from "@/src/components/RENDER_textWithHighlights/RENDER_textWithHighlights";
 
 interface VocabTranslationInputs_PROPS {
   translations: TranslationCreation_PROPS[] | null;
@@ -47,7 +48,7 @@ export default function VocabTranslation_INPUTS({
 
     return (
       <Input_WRAP
-        key={lang?.id}
+        key={lang?.id + "inoutWrap"}
         labelIcon={<ICON_flag lang={tr?.lang_id} />}
         label={`${lang?.lang?.en} translation *`}
         styles={{ padding: 20 }}
@@ -74,7 +75,7 @@ export default function VocabTranslation_INPUTS({
             style={{ flex: 1 }}
           />
         </View>
-        <Styled_TEXT>Highlights: {tr.highlights}</Styled_TEXT>
+        {/* <Styled_TEXT>Highlights: {tr.highlights}</Styled_TEXT> */}
       </Input_WRAP>
     );
   });
@@ -96,52 +97,3 @@ const s = StyleSheet.create({
     backgroundColor: MyColors.btn_3,
   },
 });
-
-function RENDER_textWithHighlights({
-  text,
-  highlights,
-  difficulty,
-}: {
-  text: string;
-  highlights: string;
-  difficulty: 1 | 2 | 3;
-}) {
-  const highlightedIndexes = highlights
-    .split(",")
-    .map((i) => parseInt(i, 10))
-    .filter((i) => !isNaN(i)); // Make sure to filter out invalid numbers
-
-  const highlightTextColor =
-    difficulty === 3
-      ? MyColors.text_difficulty_3
-      : difficulty === 2
-      ? MyColors.text_difficulty_2
-      : MyColors.text_difficulty_1;
-
-  console.log(difficulty);
-
-  const textDecorationLine = difficulty === 1 ? "line-through" : undefined;
-
-  return (
-    <Styled_TEXT>
-      {text.split("").map((letter, index) => {
-        const isHighlighted = highlightedIndexes.includes(index);
-        return (
-          <Styled_TEXT
-            key={index}
-            style={[
-              isHighlighted && { color: highlightTextColor },
-              isHighlighted && difficulty === 1 && { textDecorationLine },
-            ]}
-            // style={[
-            //   isHighlighted && { color },
-            //   difficulty === 1 && { textDecorationLine: "underline" },
-            // ]}
-          >
-            {letter}
-          </Styled_TEXT>
-        );
-      })}
-    </Styled_TEXT>
-  );
-}

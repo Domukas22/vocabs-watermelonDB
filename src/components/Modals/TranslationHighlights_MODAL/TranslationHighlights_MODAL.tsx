@@ -45,8 +45,6 @@ export default function TranslationHighlights_MODAL({
   const [_lang_id, SET_langId] = useState("");
   const lang: languagesArr_PROPS = languages[lang_id];
 
-  if (!lang) console.log("Language undefined for TranslationHighlightsModal");
-
   function SUBMIT_highlights() {
     if (!lang || !lang.id) return;
     EDIT_trHighlights({ lang_id: lang.id, newHighlights: _highlights });
@@ -131,21 +129,19 @@ function GET_highlightBtns({
 }) {
   const highlightedIndexes = highlights
     .split(",")
+    .filter(Boolean) // prefents [0] if the highlights string is empty
     .map((index) => Number(index));
 
   function HANDLE_index(index: number) {
     let updatedIndexes: number[];
-
     if (highlightedIndexes.includes(index)) {
       // If index is already highlighted, remove it
 
-      updatedIndexes = highlightedIndexes.filter((i) => i !== index).sort();
+      updatedIndexes = highlightedIndexes.filter((i) => i !== index);
     } else {
       // If index is not highlighted, add it
-      updatedIndexes = [...highlightedIndexes, index].sort();
+      updatedIndexes = [...highlightedIndexes, index];
     }
-
-    console.log(updatedIndexes);
 
     // Update the highlights state with the new string
     SET_highlights(updatedIndexes.join(","));

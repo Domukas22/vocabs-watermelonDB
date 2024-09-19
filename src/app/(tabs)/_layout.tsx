@@ -4,6 +4,7 @@ import React from "react";
 import { TabBarIcon } from "@/src/components/navigation/TabBarIcon";
 import { MyColors } from "@/src/constants/MyColors";
 import {
+  ICON_general,
   ICON_other,
   ICON_profile,
   ICON_search,
@@ -58,22 +59,13 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="profile_PAGE"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ focused }) => (
-            <ICON_profile color={focused ? "primary" : "grey"} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="other_PAGE"
-        options={{
-          title: "Other",
 
+      <Tabs.Screen
+        name="general"
+        options={{
+          title: "General",
           tabBarIcon: ({ focused }) => (
-            <ICON_other color={focused ? "primary" : "grey"} />
+            <ICON_general color={focused ? "primary" : "grey"} />
           ),
         }}
       />

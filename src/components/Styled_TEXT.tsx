@@ -4,6 +4,7 @@ import { Text, type TextProps, StyleSheet } from "react-native";
 
 export type ThemedTextProps = TextProps & {
   type?:
+    | "text_28_bold"
     | "text_22_bold"
     | "text_18_bold"
     | "text_18_semibold"
@@ -28,6 +29,10 @@ export function Styled_TEXT({
 const s = StyleSheet.create({
   default_COLOR: {
     color: MyColors.text_white,
+  },
+  text_28_bold: {
+    fontSize: 28,
+    fontFamily: "Nunito-Bold",
   },
   text_22_bold: {
     fontSize: 22,

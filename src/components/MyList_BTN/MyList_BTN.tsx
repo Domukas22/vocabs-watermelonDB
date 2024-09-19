@@ -15,28 +15,31 @@ import { withObservables } from "@nozbe/watermelondb/react";
 function _MyList_BTN({
   list,
   vocabs,
+
   onPress,
 }: {
   list: List_MODEL;
   vocabs?: Vocab_MODEL[];
+
   onPress: () => void;
 }) {
-  const { user, name, GET_vocabCounts: GET_listInfo } = list;
+  const { name } = list;
 
-  const [vocabCount, setVocabCount] = useState<number>(0);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const vocabCounts = await list.GET_vocabCounts(list.id);
-        setVocabCount(vocabCounts.total);
-      } catch (error) {
-        console.error("Error fetching vocab counts:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const difficulties = vocabs?.reduce(
+    (acc, vocab) => {
+      if (vocab.difficulty === 1) acc.difficulty_1 += 1;
+      if (vocab.difficulty === 2) acc.difficulty_2 += 1;
+      if (vocab.difficulty === 3) acc.difficulty_3 += 1;
+      acc.total += 1;
+      return acc;
+    },
+    {
+      total: 0,
+      difficulty_1: 0,
+      difficulty_2: 0,
+      difficulty_3: 0,
+    }
+  );
 
   return (
     <Pressable
@@ -54,9 +57,24 @@ function _MyList_BTN({
       <View
         style={{ flexDirection: "row", gap: 8, justifyContent: "flex-end" }}
       >
-        <VocabDifficultyCount count={3} difficulty={1} />
-        <VocabDifficultyCount count={11} difficulty={2} />
-        <VocabDifficultyCount count={42} difficulty={3} />
+        {difficulties?.difficulty_1 ? (
+          <VocabDifficultyCount
+            count={difficulties.difficulty_1}
+            difficulty={1}
+          />
+        ) : null}
+        {difficulties?.difficulty_2 ? (
+          <VocabDifficultyCount
+            count={difficulties.difficulty_2}
+            difficulty={2}
+          />
+        ) : null}
+        {difficulties?.difficulty_3 ? (
+          <VocabDifficultyCount
+            count={difficulties.difficulty_3}
+            difficulty={3}
+          />
+        ) : null}
       </View>
     </Pressable>
   );

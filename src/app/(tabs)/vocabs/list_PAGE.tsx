@@ -8,7 +8,7 @@ import Header from "@/src/components/Header/Header";
 import { Image, Vibration } from "react-native";
 import {
   ICON_3dots,
-  ICON_arrowBack,
+  ICON_arrow,
   ICON_calendar,
   ICON_difficultyDot,
   ICON_displaySettings,
@@ -49,20 +49,25 @@ import {
 import { Q } from "@nozbe/watermelondb";
 import FETCH_vocabs from "@/src/db/actions/vocabs/FETCH_vocabs";
 import { useToggle } from "@/src/hooks/useToggle/useToggle";
+import Settings_TOGGLE from "@/src/components/Settings_TOGGLE/Settings_TOGGLE";
+import { CREATE_dummyVocab } from "@/src/db/actions/vocabs/CREATE_vocab";
 
-export default function Home_SCREEN() {
+export default function List_PAGE() {
   const { selected_LIST, SET_selectedList } = USE_selectedList();
   const [SHOW_displaySettingsModal, TOGGLE_displaySettings] = useToggle(false);
   const [SHOW_vocabModal, TOGGLE_vocabModal] = useToggle(false);
 
   const [displayProps, SET_displayProps] = useState({
     search: "",
-    sorting: "shuffle",
-    image: true,
-    listName: true,
+    sorting: "date",
+    sortDirection: "ascending",
+    image: false,
+    listName: false,
     desc: true,
-    flags: true,
+    flags: false,
     difficulty: true,
+    frontLangId: "en",
+    difficultyFilter: [],
   });
 
   const [toEdit_VOCAB, SET_toEditVocab] = useState<Vocab_MODEL | null>(null);
@@ -70,24 +75,6 @@ export default function Home_SCREEN() {
     TranslationCreation_PROPS[] | null
   >(null);
 
-  function CLOSE_vocabModal() {
-    SET_toEditVocab(null);
-    SET_toEditTranslations(null);
-    TOGGLE_vocabModal();
-  }
-  function EDIT_vocab({
-    vocab,
-    translations,
-  }: {
-    vocab?: Vocab_MODEL;
-    translations?: TranslationCreation_PROPS[];
-  }) {
-    if (vocab && translations) {
-      SET_toEditVocab(vocab);
-      SET_toEditTranslations(translations);
-      TOGGLE_vocabModal();
-    }
-  }
   function HANDLE_vocabModal({
     clear = false,
     vocab,
@@ -134,7 +121,7 @@ export default function Home_SCREEN() {
         btnLeft={
           <Btn
             type="seethrough"
-            iconLeft={<ICON_arrowBack />}
+            iconLeft={<ICON_arrow />}
             onPress={() => router.back()}
             style={{ borderRadius: 100 }}
           />
@@ -175,30 +162,24 @@ export default function Home_SCREEN() {
         filters={{
           filter: {
             list_id: selected_LIST.id,
+            difficulties: displayProps.difficultyFilter,
+            search: displayProps.search,
+          },
+          sort: {
+            type: displayProps.sorting,
+            direction: displayProps.sortDirection,
           },
         }}
         EDIT_vocab={HANDLE_vocabModal}
         displayProps={displayProps}
       />
 
-      {/* <DisplaySettings_MODAL
-        {...{
-          sorting,
-          display.desc,
-          display.image,
-          display.flags,
-          display.listName,
-          display.difficulty,
-          SHOW_displaySettingsModal,
-          SET_sorting,
-          SET_showDesc,
-          SET_showFlags,
-          SET_showImage,
-          SET_showListName,
-          SET_showDifficulty,
-          TOGGLE_displaySettings,
-        }}
-      /> */}
+      <DisplaySettings_MODAL
+        open={SHOW_displaySettingsModal}
+        TOGGLE_open={TOGGLE_displaySettings}
+        props={displayProps}
+        SET_displayProps={SET_displayProps}
+      />
 
       <ManageVocab_MODAL
         SHOW_modal={SHOW_vocabModal}
@@ -207,10 +188,16 @@ export default function Home_SCREEN() {
         toEdit_TRANSLATIONS={toEdit_TRANSLATIONS}
         selected_LIST={selected_LIST}
       />
-      <Btn
+      {/* <Btn
         text="Delelte all"
         type="simple"
         onPress={DELETE_allVocabs}
+        style={{ marginTop: "auto" }}
+      /> */}
+      <Btn
+        text="Dummy vocab"
+        type="simple"
+        onPress={() => CREATE_dummyVocab(selected_LIST)}
         style={{ marginTop: "auto" }}
       />
     </MainScreen_VIEW>

@@ -2,7 +2,7 @@
 //
 //
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Simple_MODAL from "../Simple_MODAL/Simple_MODAL";
 import languages, { languagesArr_PROPS } from "@/src/constants/languages";
 import Btn from "../../btn/btn";
@@ -29,7 +29,7 @@ export default function TranslationText_MODAL({
   const [_lang_id, SET_langId] = useState("");
   const lang = languages[lang_id];
 
-  if (!lang) console.log("Language undefined for TranslationTextModal");
+  const inputREF = useRef(null);
 
   function SUBMIT_tr() {
     if (!lang || !lang.id) return;
@@ -39,6 +39,7 @@ export default function TranslationText_MODAL({
   }
 
   useEffect(() => {
+    if (IS_open) inputREF?.current?.focus();
     SET_text(IS_open ? text || "" : "");
     SET_langId(IS_open ? lang_id || "" : "");
   }, [IS_open]);
@@ -80,6 +81,7 @@ export default function TranslationText_MODAL({
           value={_text}
           SET_value={SET_text}
           placeholder="Your vocab..."
+          _ref={inputREF}
         />
       </Input_WRAP>
     </Simple_MODAL>

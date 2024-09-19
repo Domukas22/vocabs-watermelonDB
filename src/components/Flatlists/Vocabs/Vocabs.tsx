@@ -38,6 +38,7 @@ interface SingleListVocabs_PROPS {
     desc: boolean;
     flags: boolean;
     difficulty: boolean;
+    frontLangId: string;
   };
   vocabs: Vocab_MODEL[];
 }
