@@ -43,6 +43,7 @@ export default function Input_WRAP({
         style={[
           row ? { flexDirection: "row" } : { flexDirection: "column" },
           { gap: 8 },
+          styles,
         ]}
       >
         {children}
